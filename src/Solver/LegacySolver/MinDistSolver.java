@@ -1,6 +1,6 @@
-package Solver;
+package Solver.LegacySolver;
 
-import Objects.Physical.Physical;
+import Objects.Physical.LegacyPhysical.Physical;
 import Vector.Vec2;
 
 import java.util.ArrayList;

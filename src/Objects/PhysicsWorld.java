@@ -1,7 +1,8 @@
 package Objects;
 import Objects.Forces.*;
-import Objects.Physical.*;
 
+import Objects.Physical.*;
+import Objects.Physical.Polygon;
 import Solver.Solver;
 import Vector.Vec2;
 
@@ -39,7 +40,7 @@ public class PhysicsWorld implements World{
 
         //Colors
         viewport.colors.clear();
-        int cs = (int)(Math.random()*200) + 35;
+        int cs = (int)(Math.random()*0) + 35;
         viewport.colors.add(new Color(255, 0, 0));
         for (int i = 0; i < cs; i++) {
             viewport.colors.add(Color.getHSBColor((float)Math.random(), (float)(Math.random()*0.45 + 0.5), (float)(Math.random()*0.45 + 0.5)));
@@ -48,25 +49,54 @@ public class PhysicsWorld implements World{
         //Objects
         objects.clear();
         addBounds();
-
-        for (int i = objects.size(); i < Math.random() * 15 + 200; i++) {
-            objects.add(new Circle(new Vec2(Math.random() * (attributes.get("width")-1)+0.5, Math.random() * (attributes.get("height")-1)+0.5), Math.random() * 0.2 + 0.05, (int) (Math.random() * cs-1) + 1));
-            objects.get(i).setVel(new Vec2(Math.random() * 5, Math.random() * 50));
-            objects.get(i).setDensity(1.0/((Circle)(objects.get(i))).getSize());
-            objects.get(i).setMovable(true);
+        for (int i = objects.size() ; i < 50; i++) {
+            objects.add(new Pill(new Vec2(Math.random()*attributes.get("width"), Math.random()*attributes.get("height")), Math.random()*360, Math.random()*1, Math.random()*2, (int)(Math.random()*cs-1)+1));
+            objects.add(randomPolygon(cs));
         }
-
-
-
         //Forces
         forces.clear();
         forces.add(new GlobalGravity());
         forces.add(new Drag());
     }
 
-    private void addBounds() {
-        // in NESW order
+    private Polygon randomPolygon(int cs) {
+        Random random = new Random();
 
+        double width = attributes.get("width");
+        double height = attributes.get("height");
+
+        Vec2 origin = new Vec2(
+                Math.random() * width,
+                Math.random() * height
+        );
+
+        double angle = Math.random() * 360.0;
+
+        int vertexCount = 3 + random.nextInt(3); // 2-6 vertices
+
+        // Overall size of the polygon
+        double radius = Math.random() * 2;
+
+        Vec2[] vertices = new Vec2[vertexCount];
+
+        for (int i = 0; i < vertexCount; i++) {
+            double theta = (Math.PI * 2 * i) / vertexCount;
+
+            // Vary radius a little for irregular shapes
+            double r = radius * (0.5 + random.nextDouble() * 0.5);
+
+            vertices[i] = new Vec2(
+                    Math.cos(theta) * r,
+                    Math.sin(theta) * r
+            );
+        }
+
+        return new Polygon(origin, angle, vertices, (int)(Math.random()*cs-1)+1);
+    }
+
+    private void addBounds() {
+        // in NESW order //TODO replace lines with new polygon objects
+/*
         // North
         objects.add(new Line(
                 new Vec2(attributes.get("width"), attributes.get("height")),
@@ -91,6 +121,8 @@ public class PhysicsWorld implements World{
                 new Vec2(0, 0),
                 0
         ));
+        */
+
     }
 
     public void setSolver(Solver solver){
@@ -101,31 +133,31 @@ public class PhysicsWorld implements World{
         if (solver != null) {
             for (int i = 0; i < attributes.get("substeps"); i++) {
                 for (Physical obj : objects) {
-                    if (obj.getMovable()) {
+                    if (obj.movable) {
                         //ACCELERATION
-                        obj.setAcc(new Vec2(0, 0));
+                        obj.acc =new Vec2(0, 0);
                         for (Force force : forces) {
                             force.applyForces(obj, objects, attributes);
                         }
 
                         //VELOCITY
                         double stepScale = (1.0 / FPS) * (1.0 / attributes.get("substeps"));
-                        obj.setVel(obj.getVel().add(obj.getAcc().mul(stepScale)));
+                        obj.vel = (obj.vel.add(obj.acc.mul(stepScale)));
                         //MOVE
-                        obj.setOrigin(obj.getOrigin().add(obj.getVel().mul(stepScale)));
+                        obj.origin = (obj.origin.add(obj.vel.mul(stepScale)));
                     }
                 }
-                solver.resolveCollisions(objects);
+                //solver.resolveCollisions(objects); TODO
             }
         }
     }
 
-        public void draw(Graphics g){
+    public void draw(Graphics g){
             //draw objs
             for (Physical obj : objects){
                 obj.draw(g, viewport);
             }
-        }
+    }
 
     public void command(String command) {
         try {

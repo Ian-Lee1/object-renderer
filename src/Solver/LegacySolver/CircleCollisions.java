@@ -1,7 +1,8 @@
-package Solver;
+package Solver.LegacySolver;
 
-import Constants.Constants;
-import Objects.Physical.*;
+import Objects.Physical.LegacyPhysical.Circle;
+import Objects.Physical.LegacyPhysical.Line;
+import Objects.Physical.LegacyPhysical.Physical;
 import Vector.Vec2;
 
 import java.util.ArrayList;

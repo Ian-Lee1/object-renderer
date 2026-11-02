@@ -6,8 +6,7 @@ import Panels.CmdPanel;
 import Panels.WorldPanel;
 import Objects.TestWorld;
 import Objects.World;
-import Solver.CircleCollisions;
-import Solver.MinDistSolver;
+import Solver.LegacySolver.CircleCollisions;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,7 +30,7 @@ public class ViewBuilder {
 
     public ViewBuilder addPhysWorld(){
         world = new PhysicsWorld();
-        ((PhysicsWorld) world).setSolver(new CircleCollisions());
+        //((PhysicsWorld) world).setSolver(new CircleCollisions()); //TODO
         return this;
     }
 

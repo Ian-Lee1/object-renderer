@@ -1,7 +1,7 @@
 package Objects.Forces;
 
 import Objects.Physical.Physical;
-import Solver.Solver;
+import Solver.LegacySolver.Solver;
 
 import java.util.ArrayList;
 import java.util.HashMap;

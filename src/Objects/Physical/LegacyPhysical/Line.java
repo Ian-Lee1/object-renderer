@@ -1,4 +1,4 @@
-package Objects.Physical;
+package Objects.Physical.LegacyPhysical;
 
 import Objects.Viewport;
 import Vector.Vec2;
