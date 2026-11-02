@@ -25,12 +25,11 @@ public class PhysicsWorld implements World{
         viewport = new Viewport();
         viewport.origin = new Vec2(5, 5);
         viewport.zoom = 12;
-        reset();
+        resetAttributes();
+        resetObjects();
     }
 
-    private void reset() {
-
-        //Simulation Attributes
+    private void resetAttributes(){
         attributes.clear();
         attributes.put("gravity", -20.0);
         attributes.put("drag", 0.1);
@@ -38,6 +37,13 @@ public class PhysicsWorld implements World{
         attributes.put("width", 10.0);
         attributes.put("height", 10.0);
 
+        viewport.zoom = Math.max(attributes.get("width"),attributes.get("height"))*1.1;
+        viewport.origin = new Vec2(attributes.get("width")/2,attributes.get("height")/2);
+    }
+
+    private void resetObjects() {
+        viewport.zoom = Math.max(attributes.get("width"),attributes.get("height"))*1.1;
+        viewport.origin = new Vec2(attributes.get("width")/2,attributes.get("height")/2);
         //Colors
         viewport.colors.clear();
         int cs = (int)(Math.random()*0) + 35;
@@ -50,9 +56,12 @@ public class PhysicsWorld implements World{
         objects.clear();
         addBounds();
         for (int i = objects.size() ; i < 50; i++) {
-            objects.add(new Pill(new Vec2(Math.random()*attributes.get("width"), Math.random()*attributes.get("height")), Math.random()*360, Math.random()*1, Math.random()*2, (int)(Math.random()*cs-1)+1));
+            objects.add(new Pill(new Vec2(Math.random()*attributes.get("width"), Math.random()*attributes.get("height")), Math.random()*360, Math.random()*0.3, Math.random()*1, (int)(Math.random()*cs-1)+1));
+            objects.getLast().movable = true;
             objects.add(randomPolygon(cs));
+            objects.getLast().movable = true;
         }
+
         //Forces
         forces.clear();
         forces.add(new GlobalGravity());
@@ -75,7 +84,7 @@ public class PhysicsWorld implements World{
         int vertexCount = 3 + random.nextInt(3); // 2-6 vertices
 
         // Overall size of the polygon
-        double radius = Math.random() * 2;
+        double radius = Math.random() * 0.5;
 
         Vec2[] vertices = new Vec2[vertexCount];
 
@@ -95,33 +104,16 @@ public class PhysicsWorld implements World{
     }
 
     private void addBounds() {
-        // in NESW order //TODO replace lines with new polygon objects
-/*
+        // in NESW order
         // North
-        objects.add(new Line(
-                new Vec2(attributes.get("width"), attributes.get("height")),
-                new Vec2(0, attributes.get("height")),
-                0
-        ));
+        objects.add(new Pill(new Vec2(0, attributes.get("height")), 0, 0.01, attributes.get("width"), 0 ));
         // East
-        objects.add(new Line(
-                new Vec2(attributes.get("width"), attributes.get("height")),
-                new Vec2(attributes.get("width"), 0),
-                0
-        ));
+        objects.add(new Pill(new Vec2( attributes.get("width"), 0), 90, 0.01, attributes.get("height"), 0 ));
         // South
-        objects.add(new Line(
-                new Vec2(0, 0),
-                new Vec2(attributes.get("width"), 0),
-                0
-        ));
+        objects.add(new Pill(new Vec2(0, 0), 0, 0.01, attributes.get("width"), 0 ));
         // West
-        objects.add(new Line(
-                new Vec2(0, attributes.get("height")),
-                new Vec2(0, 0),
-                0
-        ));
-        */
+        objects.add(new Pill(new Vec2( 0, 0), 90, 0.01, attributes.get("height"), 0 ));
+
 
     }
 
@@ -147,7 +139,7 @@ public class PhysicsWorld implements World{
                         obj.origin = (obj.origin.add(obj.vel.mul(stepScale)));
                     }
                 }
-                //solver.resolveCollisions(objects); TODO
+                solver.resolve(objects);
             }
         }
     }
@@ -159,21 +151,29 @@ public class PhysicsWorld implements World{
             }
     }
 
+
     public void command(String command) {
         try {
             if (command.toLowerCase().startsWith("vp_")) {
-                if (command.toLowerCase().startsWith("zoom ", 3)) {
-                    viewport.zoom = Double.parseDouble(command.substring(8));
-                } else if (command.toLowerCase().startsWith("origin ", 3)) {
+                if (command.toLowerCase().startsWith("zoom", 3)) {
+                    if (command.length() > 8) {
+                        viewport.zoom = Double.parseDouble(command.substring(8));
+                    }else {
+                        System.out.println("Viewport Zoom: " + viewport.zoom);
+                    }
+                } else if (command.toLowerCase().startsWith("origin", 3)) {
+                    if (command.length() > 10) {
                     viewport.origin = Vec2.parseVec2(command.substring(10));
-                }
-            } else if (command.toLowerCase().startsWith("db_")) {
-                if (command.toLowerCase().startsWith("vp", 3)) {
-                    System.out.println("origin: " + viewport.origin + " zoom: " + viewport.zoom);
+                    }else {
+                        System.out.println("Viewport Origin: " + viewport.origin);
+                    }
                 }
             } else if (command.toLowerCase().startsWith("sm_reset")) {
-                reset();
-            }else if (command.toLowerCase().startsWith("sm_step")) {
+                resetAttributes();
+                resetObjects();
+            }else if (command.toLowerCase().startsWith("sm_regen")) {
+                resetObjects();
+            } else if (command.toLowerCase().startsWith("sm_step")) {
                 if (command.length() > 8){
                     for(int i = 0 ; i < Integer.parseInt(command.substring(8)); i++){
                         update();
@@ -181,37 +181,33 @@ public class PhysicsWorld implements World{
                 }else {
                     update();
                 }
-            }else if (command.toLowerCase().startsWith("sm_bounds ")) {
-                double number = Double.parseDouble(command.substring(12));
-                switch(command.charAt(10)){
-                    case 'n':
-
-                        break;
-                    case 'e':
-
-                        break;
-                    case 's':
-
-                        break;
-                    case 'w':
-
-                        break;
-                    default:
-                        throw new IllegalArgumentException();
+            }else if (command.toLowerCase().startsWith("sm_bounds")) {
+                if(command.length() > 12) {
+                    double number = Double.parseDouble(command.substring(12));
+                    switch (command.charAt(10)) {
+                        case 'w':
+                            attributes.put("width", number);
+                            break;
+                        case 'h':
+                            attributes.put("height", number);
+                            break;
+                        default:
+                            throw new IllegalArgumentException();
+                    }
+                    resetObjects();
                 }
-
+                else{ System.out.println("Width: " + attributes.get("width") + " | Height: " + attributes.get("height"));}
             }else if (command.toLowerCase().startsWith("help")) {
                 System.out.println(
                         """
-                                DEBUG - db_
-                                    db_vp | prints the viewport's origin and zoom.
                                 VIEWPORT - vp_
                                     vp_origin [double],[double] | sets the viewpoint's origin.
                                     vp_zoom [double]| set the viewport's zoom level. zoom describes units visible on the y-axis.
                                 SIMULATION - sm_
                                     sm_step [Optional int] | take 1 or more steps in the simulation
-                                    sm_reset | resets the simulation
-                                    sm_bounds [n/e/s/w] [double] | changes the boundaries of the simulation
+                                    sm_reset | fully resets the simulation
+                                    sm_regen | regenerates simulation objects
+                                    sm_bounds [w/h] [double] | changes the width and height of the simulation
                                 """);
             } else {
                 System.out.println("Unknown command. Input \"help\" for command information.");
