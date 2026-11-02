@@ -15,7 +15,7 @@ public abstract class Physical {
     public double ang;
     public double angVel;
 
-    public double mass = 1.0;
+    public double inverseMass = 0.0; //default is unmovable and has 1/infinite "mass"
     public double inertia;
 
     public int colorIdx;

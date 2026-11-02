@@ -6,6 +6,10 @@ public class Vec2 {
         private final double x;
         private final double y;
 
+        public static Vec2 radToVec(double ang){
+            return new Vec2(Math.cos(ang), Math.sin(ang));
+        }
+
         public Vec2(double x, double y) {
             this.x = x;
             this.y = y;

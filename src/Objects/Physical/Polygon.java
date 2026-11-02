@@ -13,6 +13,8 @@ public class Polygon extends Physical{
         this.ang = ang;
         this.vertices = verticies;
         this.colorIdx = ind;
+        this.vel = new Vec2(0, 0);
+        this.acc = new Vec2(0, 0);
     }
 
     @Override
@@ -35,8 +37,8 @@ public class Polygon extends Physical{
             double worldY = origin.getY() + rotatedY;
 
             Vec2 screenPos = viewport.worldToScreen(g, new Vec2(worldX, worldY));
-            xs[i] = (int)(screenPos.getX() + g.getClipBounds().getWidth()/2);
-            ys[i] = (int)(screenPos.getY() + g.getClipBounds().getWidth()/2);
+            xs[i] = (int) (screenPos.getX() + g.getClipBounds().getWidth()/2);
+            ys[i] = (int)-(screenPos.getY() + g.getClipBounds().getWidth()/2);
         }
 
         g.fillPolygon(xs, ys, vertices.length);

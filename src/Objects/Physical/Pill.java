@@ -15,7 +15,10 @@ public class Pill extends Physical{
         this.size = size;
         this.length = length;
         this.colorIdx = ind;
+        this.vel = new Vec2(0, 0);
+        this.acc = new Vec2(0, 0);
     }
+
     @Override
     public void draw(Graphics g, Viewport viewport) {
         Graphics2D g2 = (Graphics2D) g;
@@ -32,16 +35,16 @@ public class Pill extends Physical{
         );
 
         Vec2 screenPos = viewport.worldToScreen(g, origin);
-        int x1 = (int)(screenPos.getX() + g.getClipBounds().getWidth()/2);
-        int y1 = (int)(screenPos.getY() + g.getClipBounds().getHeight()/2);
+        int x1 = (int) (screenPos.getX() + g.getClipBounds().getWidth()/2);
+        int y1 = (int)-(screenPos.getY() - g.getClipBounds().getHeight()/2);
 
         screenPos = viewport.worldToScreen(g, end);
-        int x2 = (int)(screenPos.getX() + g.getClipBounds().getWidth()/2);
-        int y2 = (int)(screenPos.getY() + g.getClipBounds().getHeight()/2);
+        int x2 = (int) (screenPos.getX() + g.getClipBounds().getWidth()/2);
+        int y2 = (int)-(screenPos.getY() - g.getClipBounds().getHeight()/2);
 
         float thickness = (float)(size * 2 * scale);
 
-        Stroke old = g2.getStroke();
+        Stroke stroke = g2.getStroke();
 
         g2.setStroke(new BasicStroke(
                 thickness,
@@ -51,6 +54,6 @@ public class Pill extends Physical{
 
         g2.drawLine(x1, y1, x2, y2);
 
-        g2.setStroke(old);
+        g2.setStroke(stroke);
     }
 }
