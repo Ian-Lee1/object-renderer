@@ -47,8 +47,7 @@ public class PhysicsWorld implements World{
 
         //Objects
         objects.clear();
-        //addBounds();
-
+        addBounds();
 
         for (int i = objects.size(); i < Math.random() * 15 + 200; i++) {
             objects.add(new Circle(new Vec2(Math.random() * (attributes.get("width")-1)+0.5, Math.random() * (attributes.get("height")-1)+0.5), Math.random() * 0.2 + 0.05, (int) (Math.random() * cs-1) + 1));
@@ -61,8 +60,8 @@ public class PhysicsWorld implements World{
 
         //Forces
         forces.clear();
-        /*forces.add(new GlobalGravity());
-        forces.add(new Drag());*/
+        forces.add(new GlobalGravity());
+        forces.add(new Drag());
     }
 
     private void addBounds() {

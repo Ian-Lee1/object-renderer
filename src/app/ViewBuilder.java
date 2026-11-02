@@ -31,7 +31,7 @@ public class ViewBuilder {
 
     public ViewBuilder addPhysWorld(){
         world = new PhysicsWorld();
-        ((PhysicsWorld) world).setSolver(new MinDistSolver());
+        ((PhysicsWorld) world).setSolver(new CircleCollisions());
         return this;
     }
 
