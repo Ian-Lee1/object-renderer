@@ -36,12 +36,27 @@ public class PillPolySolver implements Solver{
         Vec2 obj2LineStart, obj2LineEnd;
 
         objLineStart = obj.origin;
-        objLineEnd   = obj.origin.add(Vec2.radToVec(Math.toRadians(obj.ang)).mul(obj.length));
+        objLineEnd = obj.origin;
+        if (obj.length > 0) {
+            objLineEnd = obj.origin.add(Vec2.radToVec(Math.toRadians(obj.ang)).mul(obj.length));
+        }
 
         obj2LineStart = obj2.origin;
-        obj2LineEnd   = obj2.origin.add(Vec2.radToVec(Math.toRadians(obj2.ang)).mul(obj2.length));
+        obj2LineEnd = obj2.origin;
+        if (obj2.length > 0) {
+            obj2LineEnd = obj2.origin.add(Vec2.radToVec(Math.toRadians(obj2.ang)).mul(obj2.length));
+        }
+        Points result;
+        if (obj.length > 0 && obj2.length > 0) {
+            result = computNearestPoints(objLineStart, objLineEnd, obj2LineStart, obj2LineEnd);
+        } else if (obj.length == 0 && obj2.length == 0) {
+            result = new Points(obj.origin, obj2.origin, false);
+        } else if (obj.length == 0 && obj2.length > 0) {
+            result = new Points(obj.origin, nearestPointToPt(obj2LineStart, obj2LineEnd, obj.origin), false);
+        } else { //obj.length > 0 && obj2.length == 0
+            result = new Points(nearestPointToPt(objLineStart, objLineEnd, obj2.origin), obj2.origin, false);
+        }
 
-        Points result = computNearestPoints(objLineStart, objLineEnd, obj2LineStart, obj2LineEnd);
         Vec2 delta = result.a.sub(result.b);
         double dist = delta.length();
         double penetration = obj.size + obj2.size - dist;
@@ -76,6 +91,14 @@ public class PillPolySolver implements Solver{
         System.out.println(result.a);System.out.println(result.b);System.out.println(result.parallel);
     }*/
     private record Points(Vec2 a, Vec2 b, boolean parallel){};
+
+    private Vec2 nearestPointToPt(Vec2 p0,Vec2 p1, Vec2 pt) {
+        Vec2 line = p0.sub(p1);
+        Vec2 ap = pt.sub(p1);
+        double t = ap.dot(line) / line.dot(line);
+        t = Math.clamp(t, 0, 1);
+        return p1.add(line.mul(t));
+    }
 
     private Points computNearestPoints(Vec2 p0,Vec2 p1, Vec2 q0, Vec2 q1) {
         boolean parallel = false;

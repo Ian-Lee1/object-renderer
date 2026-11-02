@@ -56,19 +56,18 @@ public class PhysicsWorld implements World{
         objects.clear();
         addBounds();
         for (int i = objects.size() ; i < 300; i++) {
-            objects.add(new Pill(new Vec2(Math.random()*(attributes.get("width")-3)+1.5, Math.random()*(attributes.get("height") -3)+1.5), Math.random()*360, Math.random()*0.1, Math.random()*1, (int)(Math.random()*cs-1)+1));
+            objects.add(new Pill(new Vec2(Math.random()*(attributes.get("width")-3)+1.5, Math.random()*(attributes.get("height") -3)+1.5), Math.random()*360, Math.random()*0.2, Math.max(0,Math.random()*1-0.8), (int)(Math.random()*cs-1)+1));
             objects.getLast().movable = true;
             objects.getLast().inverseMass = Math.random() + 0.1;
             //objects.add(randomPolygon(cs));
             //objects.getLast().movable = true;
         }
-        objects.add(new Pill(new Vec2(5.3, 5), 0, 0.1, 0, 2));
+        /*objects.add(new Pill(new Vec2(5.3, 5), 0.1, 0.3, 0.0, 2));
+        objects.getLast().movable = true;
         objects.getLast().inverseMass = 1.0;
+        objects.add(new Pill(new Vec2(5, 6), 89.9, 0.3, 0, 1));
         objects.getLast().movable = true;
-        objects.getLast().vel = new Vec2(0, 35);
-        objects.add(new Pill(new Vec2(5, 6), 0, 0.3, 0, 1));
-        objects.getLast().movable = true;
-        objects.getLast().inverseMass = 1.0/3.0;
+        objects.getLast().inverseMass = 1.0/3.0;*/
         //Forces
         forces.clear();
         forces.add(new GlobalGravity());
