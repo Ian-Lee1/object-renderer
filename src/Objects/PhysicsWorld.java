@@ -111,25 +111,28 @@ public class PhysicsWorld implements World{
             for (int i = 0; i < attributes.get("substeps"); i++) {
 
                 for (Physical obj : objects) {
-
+                    obj.acc =new Vec2(0, 0);
+                    for (Force force : forces) {
+                        force.applyForces(obj, objects, attributes);
+                    }
                     if (obj.movable) {
                         //ACCELERATION
-                        obj.acc =new Vec2(0, 0);
-                        for (Force force : forces) {
-                            force.applyForces(obj, objects, attributes);
-                        }
+
 
                         //VELOCITY
 
 
-                        //obj.applyRotate(stepScale);
-                        obj.ang = 15;
+                        obj.applyRotate(stepScale);
+                        //obj.ang = 15;
                         obj.vel = (obj.vel.add(obj.acc.mul(stepScale)));
                         //MOVE
                         obj.origin = (obj.origin.add(obj.vel.mul(stepScale)));
+                    } else {
+                        obj.vel = new Vec2(0,0);
+                        obj.angVel = 0;
                     }
                 }
-                solver.resolve(objects, stepScale);
+                solver.resolve(objects, stepScale, attributes);
             }
         }
     }
@@ -209,14 +212,16 @@ public class PhysicsWorld implements World{
                 if (command.toLowerCase().startsWith("clear", 13)){
                     resetAttributes();
                     System.out.println("Attributes cleared.");
-                } else if (command.length() > 14){
+                }
+                else if (command.length() > 14){
                     String section = command.substring(13);
                     int space = section.indexOf(' ');
                     if (space <= 0 || space == section.length() - 1){
                         System.out.println("Invalid formatting.");
                     }
-                    System.out.println("Added " + section.substring(0, space) + ": " + section.substring(space));
+
                     attributes.put(section.substring(0, space), Double.parseDouble(section.substring(space)));
+                    System.out.println("Added/Changed " + section.substring(0, space) + ": " + section.substring(space));
                 }
             }
             else if (command.toLowerCase().startsWith("sm_bounds_regen")) {
@@ -257,7 +262,7 @@ public class PhysicsWorld implements World{
             }
             else if (command.toLowerCase().startsWith("exec ")){
                 String filePath = command.substring(5);
-                try (Stream<String> lines = Files.lines(Paths.get(filePath))) {
+                try (Stream<String> lines = Files.lines(Paths.get("scripts/" + filePath))) {
                     lines.forEach(this::command);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -279,7 +284,7 @@ public class PhysicsWorld implements World{
                                 ENTITIES - ent_
                                     ent_create [entity] [keyvalues] | create an entity with the given keyvalues
                                 EXECUTE FILE - exec
-                                    exec [filePath] | execute each line in the file as a command in the command field. Beware of infinite loops if exec calls are nested.
+                                    exec [filePath] | execute each line in a file in script/ as a command in the command field. Beware of infinite loops if exec calls are nested.
                                 """);
             } else {
                 System.out.println("Unknown command. Input \"help\" for command information.");

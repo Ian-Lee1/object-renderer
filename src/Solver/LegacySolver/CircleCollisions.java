@@ -73,7 +73,7 @@ public class CircleCollisions implements Solver {
                         double velAlongNormal = rv.dot(normal);
 
                         if (velAlongNormal < 0) { //is moving together
-                            double j = -(1 + BOUNCYNESS) * velAlongNormal;
+                            double j = -(1 + 0.99) * velAlongNormal;
                             j /= (m1) + (m2);
                             Vec2 impulse = normal.mul(j);
                             obj.setVel(obj.getVel().add(impulse.mul(m1)));

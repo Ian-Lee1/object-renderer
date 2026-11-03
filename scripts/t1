@@ -1,0 +1,6 @@
+exec bounds
+exec randomPills
+exec forces
+
+vp_origin 30,5
+vp_zoom 40

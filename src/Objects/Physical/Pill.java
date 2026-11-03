@@ -120,9 +120,9 @@ public class Pill extends Physical{
     @Override
     public double getInertia() {
                        //inertia of rectangle with fake "mass"                  inertia of circle with fake "mass"     multiply real mass back in
-        double calculated = ( (((pow(length, 2) + pow(2*size, 2)) * (length * 2*size))/12) + ((pow(size, 2)/2) * Math.PI*pow(size, 2))) /inverseMass;
+        double calculated = ( (((pow(length, 2) + pow(2*size, 2)) * (length * 2*size))/12) + ((pow(size, 2)/2 + pow(length, 2)/4) * Math.PI*pow(size, 2))) /inverseMass;
         if (movable){
-            return  calculated;
+            return  calculated / (length * 2*size + Math.PI * pow(size, 2));
         }
         return Double.POSITIVE_INFINITY;
     }

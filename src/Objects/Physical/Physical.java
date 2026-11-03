@@ -5,8 +5,12 @@ import Vector.Vec2;
 import jdk.jshell.spi.ExecutionControl;
 
 import java.awt.*;
+import java.util.HashMap;
 
 public abstract class Physical {
+    public HashMap<String, Double> attributes;
+    //would be useful for particle life or other simulations
+
     public Vec2 origin;
     public Vec2 vel;
     public Vec2 acc;
@@ -17,7 +21,6 @@ public abstract class Physical {
     public double angVel;
 
     public double inverseMass = 0.0; //default is unmovable and has 1/infinite "mass"
-    public double inertia;
 
     public int colorIdx;
 

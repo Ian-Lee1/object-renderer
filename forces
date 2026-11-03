@@ -1,4 +1,0 @@
-sm_attribute gravity -20
-sm_attribute drag 0.05
-ent_create force_ggravity
-ent_create force_drag

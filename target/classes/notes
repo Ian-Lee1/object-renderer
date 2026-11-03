@@ -2,5 +2,98 @@
     worldview, collaspable menu
 
 
+    circle to circle direct
+
+    circle to circle indirect
+
+    circle to pill circle
+
+    circle to pill flat edge
+
+    pill to pill edge to edge
+
+    pill to pill rotated edge
+
+    //POTNETIAL COMMAND SYSTEM IMPROVEMENT - look into Consumer<String> thing
+    private final Map<String, Consumer<String>> commands = new HashMap<>();
+
+    Initialization:
+
+    Java
+    commands.put("help", args -> showHelp());
+
+    commands.put("sm_reset", args -> resetSimulation());
+
+    commands.put("sm_step", args -> stepSimulation(args));
+
+    commands.put("exec", args -> executeFile(args));
+
+
+
+    Java
+    public void command(String command) {
+
+    String[] split = command.split("\\s+", 2);
+
+    String name = split[0].toLowerCase();
+    String args = split.length > 1 ? split[1] : "";
+
+    Consumer<String> handler = commands.get(name);
+
+    if (handler != null) {
+    handler.accept(args);
+    } else {
+    System.out.println("Unknown command: " + name);
+    }
+    }
+
+
 
     each object should have a method for drawing itself onto a given panel
+
+
+    private void applyImpulse(Contact contact, double stepScale){
+            Physical obj = contact.a;
+            Physical obj2 = contact.b;
+            //=========APPLY IMPULSE==========
+            //reletive velocity
+                //Calculate rotational velocities of both points
+            Vec2 rA = contact.contact[0].sub(contact.a.getCenterOfMass());
+            Vec2 rB = contact.contact[0].sub(contact.b.getCenterOfMass());
+
+            Vec2 vA = obj.vel.add(rA.perp().mul(contact.a.angVel));
+            Vec2 vB = obj2.vel.add(rB.perp().mul(contact.b.angVel));
+
+            Vec2 rv = vA.sub(vB);
+
+            //in normal
+            double velAlongNormal = rv.dot(contact.normal);
+
+            if (velAlongNormal < 0) { //is moving together
+                //apply impulse along normal of contact, factoring in rotational velocities
+                double rnA = rA.cross(contact.normal);
+                double rnB = rB.cross(contact.normal);
+
+                double invInertiaA = 1/contact.a.getInertia();
+                double invInertiaB = 1/contact.b.getInertia();
+
+                double denom =
+                        contact.a.inverseMass +
+                        contact.b.inverseMass +
+                                rnA * rnA * invInertiaA +
+                                rnB * rnB * invInertiaB;
+
+                double j = -(1 + BOUNCYNESS) * velAlongNormal / denom;
+                //apply velocity impulse
+                Vec2 impulse = contact.normal.mul(j);
+                obj.vel = (obj.vel.add(impulse.mul(obj.inverseMass)));
+                obj2.vel = (obj2.vel.sub(impulse.mul(obj2.inverseMass)));
+
+                //apply angular impulse
+                /*
+                double angularImpulseA = rA.cross(impulse);
+                double angularImpulseB = rB.cross(impulse);
+                contact.a.angVel += angularImpulseA * invInertiaA;
+                contact.b.angVel -= angularImpulseB * invInertiaB;*/
+            }
+        }

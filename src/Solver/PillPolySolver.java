@@ -5,24 +5,27 @@ import Objects.Physical.Pill;
 import Objects.Physical.Polygon;
 import Vector.Vec2;
 
+import java.util.HashMap;
 import java.util.List;
 
-import static Constants.Constants.BOUNCYNESS;
+import static java.lang.Math.pow;
 
 public class PillPolySolver implements Solver{
 
     @Override
-    public void resolve(List<Physical> objects, double stepScale) {
-        for (int i = 0; i < objects.size() ; i++){
-            for (int j = i+1; j < objects.size() ; j++){
-                Physical obj = objects.get(i);
+    public void resolve(List<Physical> objects, double stepScale, HashMap<String, Double> attributes) {
+        for (int i = objects.size()-1 ; i >= 0 ; i--){
+
+            Physical obj = objects.get(i);
+            for (int j = i-1; j >=0 ; j--){
                 Physical obj2 = objects.get(j);
                 if (obj.movable || obj2.movable){
                     Contact contact = collide(obj, obj2);
                     if (contact.penetration >= 0){
-                        applyImpulse(contact, stepScale);
+                        applyImpulse(contact, stepScale, attributes);
                     }
                 }
+
             }
         }
     }
@@ -81,7 +84,6 @@ public class PillPolySolver implements Solver{
             } else { //TODO debug on wether directly taking the line points are ok or if we need to figure out exact contact points
                 contact.contact = new Vec2[]{objLineStart, objLineEnd};
             }
-
         }
         return contact;
     }
@@ -205,49 +207,72 @@ public class PillPolySolver implements Solver{
         }
     }
 
-    private void applyImpulse(Contact contact, double stepScale){
-        Physical obj = contact.a;
-        Physical obj2 = contact.b;
-        //=========APPLY IMPULSE==========
-        //reletive velocity
-            //Calculate rotational velocities of both points
-        Vec2 rA = contact.contact[0].sub(contact.a.getCenterOfMass());
-        Vec2 rB = contact.contact[0].sub(contact.b.getCenterOfMass());
+    private void applyImpulse(Contact contact, double stepScale, HashMap<String, Double> attributes){
+        double bouncyness = 0.999;
+        if (attributes.containsKey("bouncyness")){
+            bouncyness = Math.clamp(attributes.get("bouncyness"), 0, 0.999);
+        }
 
-        Vec2 vA = obj.vel.add(rA.perp().mul(contact.a.angVel));
-        Vec2 vB = obj2.vel.add(rB.perp().mul(contact.b.angVel));
+        Physical obj2 = contact.a; //moving
+        Physical obj = contact.b; //wall
 
-        Vec2 rv = vA.sub(vB);
+        Vec2 rA = contact.contact[0].sub(obj.getCenterOfMass());
+        Vec2 rB = contact.contact[0].sub(obj2.getCenterOfMass());
 
-        //in normal
-        double velAlongNormal = rv.dot(contact.normal);
+        // Contact point velocities
+        Vec2 vContactA = obj.vel.add(new Vec2(-Math.toRadians(obj.angVel) * rA.getY(), Math.toRadians(obj.angVel) * rA.getX()));
+        Vec2 vContactB = obj2.vel.add(new Vec2(-Math.toRadians(obj2.angVel) * rB.getY(), Math.toRadians(obj2.angVel) * rB.getX()));
+
+        // Relative velocity along the normal
+        Vec2 vRel = vContactB.sub(vContactA);
+        double velAlongNormal = vRel.dot(contact.normal);
 
         if (velAlongNormal < 0) { //is moving together
-            //apply impulse along normal of contact, factoring in rotational velocities
-            double rnA = 0;//rA.cross(contact.normal);
-            double rnB = 0;//rB.cross(contact.normal);
+            double rAn = (rA.getX() * contact.normal.getY()) - (rA.getY() * contact.normal.getX());
+            double rBn = (rB.getX() * contact.normal.getY()) - (rB.getY() * contact.normal.getX());
 
-            double invInertiaA = 1/contact.a.getInertia();
-            double invInertiaB = 1/contact.b.getInertia();
+            double invMassA = !obj.movable ? 0 : obj.inverseMass;
+            double invMassB = !obj2.movable ? 0 : obj2.inverseMass;
+            double invInertiaA = !obj.movable ? 0 : 1.0 / obj.getInertia();
+            double invInertiaB = !obj2.movable ? 0 : 1.0 / obj2.getInertia();
 
-            double denom =
-                    contact.a.inverseMass +
-                    contact.b.inverseMass +
-                            rnA * rnA * invInertiaA +
-                            rnB * rnB * invInertiaB;
+            double denom = invMassA + invMassB +
+                    (rAn * rAn * invInertiaA) +
+                    (rBn * rBn * invInertiaB);
 
-            double j = -(1 + BOUNCYNESS) * velAlongNormal / denom;
+            double j = -(1 + bouncyness) * velAlongNormal / denom;
+
             //apply velocity impulse
             Vec2 impulse = contact.normal.mul(j);
-            obj.vel = (obj.vel.add(impulse.mul(obj.inverseMass)));
-            obj2.vel = (obj2.vel.sub(impulse.mul(obj2.inverseMass)));
 
-            //apply angular impulse
-            /*
-            double angularImpulseA = rA.cross(impulse);
-            double angularImpulseB = rB.cross(impulse);
-            contact.a.angVel += angularImpulseA * invInertiaA;
-            contact.b.angVel -= angularImpulseB * invInertiaB;*/
+            if (obj.movable) {
+                obj.vel = obj.vel.sub(impulse.mul(invMassA));
+                // 2D cross product: rA x (-impulse) -> -(rA.x * impulse.y - rA.y * impulse.x)
+                double torqueImpulseA = (rA.getX() * impulse.getY()) - (rA.getY() * impulse.getX());
+                obj.angVel -= Math.toDegrees(torqueImpulseA * invInertiaA);
+            }
+
+            if (obj2.movable) {
+                obj2.vel = obj2.vel.add(impulse.mul(invMassB));
+                // 2D cross product: rB x impulse
+                double torqueImpulseB = (rB.getX() * impulse.getY()) - (rB.getY() * impulse.getX());
+                obj2.angVel += Math.toDegrees(torqueImpulseB * invInertiaB);
+            }
+
+            
+        }
+
+        //prevent merging
+        double totalInvMass = obj.inverseMass + obj2.inverseMass;
+
+        if(obj.movable){
+            obj.origin = obj.origin.sub(contact.normal.mul(
+                    contact.penetration * obj.inverseMass / totalInvMass));
+       }
+        if(obj2.movable){
+            obj2.origin = obj2.origin.add(contact.normal.mul(
+                    contact.penetration * obj2.inverseMass / totalInvMass
+            ));
         }
     }
 }

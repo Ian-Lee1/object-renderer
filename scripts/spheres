@@ -3,9 +3,8 @@ sm_bounds w 10
 sm_bounds h 10
 sm_bounds_regen
 vp_reset
-vp_colors add 230 200 50
-vp_colors add 30 200 250
-vp_colors random 3
+vp_colors random 5
+
 ent_create phys_pill origin 2,5.5 ang 0 angVel 0 size 0.5 colorIdx 1 movable 1 vel 16,-4 mass 1
 ent_create phys_pill origin 4,6 size 0.3 colorIdx 2 movable 1 vel -2,6 mass 2
 ent_create phys_pill origin 5,4 size 0.4 colorIdx 3 movable 1 vel 2,-6 mass 0.5

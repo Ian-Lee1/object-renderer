@@ -5,8 +5,6 @@ import Vector.Vec2;
 
 import java.util.ArrayList;
 
-import static Constants.Constants.BOUNCYNESS;
-
 public class MinDistSolver implements Solver{
     double margin = 1e-3;
     int maxIter = 10;
@@ -52,7 +50,7 @@ public class MinDistSolver implements Solver{
                         double velAlongNormal = rv.dot(normal);
 
                         if (velAlongNormal < 0) { //is moving together
-                            double j = -(1 + BOUNCYNESS) * velAlongNormal;
+                            double j = -(1 + 0.99) * velAlongNormal;
                             j /= (obj.getMass()) + (obj2.getMass());
                             Vec2 impulse = normal.mul(j);
                             obj.setVel(obj.getVel().add(impulse.mul(obj.getMass())));
