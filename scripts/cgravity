@@ -1,0 +1,4 @@
+sm_attribute g_center_x 30
+sm_attribute g_center_y 30
+sm_attribute gravity 1000
+ent_create force_pgravity

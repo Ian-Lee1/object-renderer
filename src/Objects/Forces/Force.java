@@ -16,6 +16,8 @@ public abstract class Force {
             return new GlobalGravity();
         } else if (parameters.toLowerCase().startsWith("drag")) {
             return new Drag();
+        }else if (parameters.toLowerCase().startsWith("pgravity")) {
+            return new CenterGravity();
         }
         throw new IllegalArgumentException("Cannot create Unsupported type " + parameters.substring(0, parameters.indexOf(' ')));
     }
