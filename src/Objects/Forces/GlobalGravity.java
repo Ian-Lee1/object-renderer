@@ -6,7 +6,7 @@ import Vector.Vec2;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class GlobalGravity implements Force {
+public class GlobalGravity extends Force {
     @Override
     public void applyForces(Physical obj, ArrayList<Physical> objects, HashMap<String, Double> attributes) {
         if (attributes.containsKey("gravity")) {

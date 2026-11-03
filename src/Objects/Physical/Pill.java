@@ -5,6 +5,8 @@ import Vector.Vec2;
 
 import java.awt.*;
 
+import static java.lang.Math.pow;
+
 public class Pill extends Physical{
     public double size;
     public double length; //length extending according to angle from origin
@@ -19,10 +21,116 @@ public class Pill extends Physical{
         this.acc = new Vec2(0, 0);
     }
 
+    public Pill(String cmdParameters){
+        initFromString(cmdParameters);
+    }
+
+    @Override
+    public void initFromString(String cmdParameters) {
+        double doubleValue;
+        Vec2 vecValue;
+        // === REQUIRED (raise exception listing first missing parameter) ===
+        // origin
+        vecValue = getVec2(cmdParameters, "origin ");
+        if (vecValue == null){
+            throw new IllegalArgumentException("command is missing required origin parameter.");
+        }
+        origin = vecValue;
+        // size
+        doubleValue = getDouble(cmdParameters, "size ");
+        if (Double.isNaN(doubleValue) ){
+            throw new IllegalArgumentException("command is missing required origin parameter.");
+        }
+        size = doubleValue;
+
+        // === OPTIONAL ===
+        // ang - default 0
+        ang = getDouble(cmdParameters, "ang ");
+        if (Double.isNaN(ang) ){
+            ang = 0;
+        }
+        // length - 0
+        length = getDouble(cmdParameters, "length ");
+        if (Double.isNaN(length) ){
+            length = 0;
+        }
+        // angVel - 0
+        angVel = getDouble(cmdParameters, "angVel ");
+        if (Double.isNaN(angVel) ){
+            angVel = 0;
+        }
+        // colorIdx - default 0 (color index, does not directly store color but only the index from a color list)
+        colorIdx = (int)getDouble(cmdParameters, "colorIdx "); //casting converts NaN to 0
+        // vel - default 0,0 - Vec2 has parseVec2 method, in format "x,y".
+        vel = getVec2(cmdParameters, "vel ");
+        if (vel == null){
+            vel = new Vec2(0, 0);
+        }
+        // mass - INF = inverseMass = 0
+        inverseMass = 1.0/getDouble(cmdParameters, "mass ");
+        if (Double.isNaN(inverseMass) ){
+            inverseMass = 0;
+        }
+        // movable - false
+        movable = getDouble(cmdParameters, "movable ") > 0; //if NaN, false.
+    }
+
+    private Vec2 getVec2(String cmd, String paraType){
+        /// parse the vector associated with the passed in parameter. If cmd does not contain paraType, returns null.///
+        if (!cmd.contains(paraType)){
+            return null;
+        }
+        String starting = cmd.substring(cmd.indexOf(paraType) + paraType.length());
+        String value = getNextSegment(starting);
+        return Vec2.parseVec2(value);
+    }
+
+    private double getDouble(String cmd, String paraType){
+        /// parse the double associated with the passed in parameter. If cmd does not contain paraType, returns nan.///
+        if (!cmd.contains(paraType)){
+            return Double.NaN;
+        }
+        String starting = cmd.substring(cmd.indexOf(paraType) + paraType.length());
+        String value = getNextSegment(starting);
+        return Double.parseDouble(value);
+    }
+
+    private String getNextSegment(String str){
+        return str.substring(0, str.indexOf(' '));
+    }
+
+    @Override
+    public void applyRotate(double stepScale) {
+        ang += angVel * stepScale;
+        if (length > 0) { //center of mass of circle = origin.
+            double radAng = Math.toRadians(angVel * stepScale);
+            Vec2 centerOfMass = getCenterOfMass();
+            double x2 = centerOfMass.getX() + (origin.getX() - centerOfMass.getX()) * Math.cos(radAng) - (origin.getY() - centerOfMass.getY()) * Math.sin(radAng);
+            double y2 = centerOfMass.getY() + (origin.getX() - centerOfMass.getX()) * Math.sin(radAng) + (origin.getY() - centerOfMass.getY()) * Math.cos(radAng);
+            origin = new Vec2(x2, y2);
+        }
+    }
+
+    @Override
+    public Vec2 getCenterOfMass() {
+        Vec2 angVec = Vec2.radToVec(Math.toRadians(ang));
+        return origin.add(angVec.mul(length/2));
+    }
+
+    @Override
+    public double getInertia() {
+                       //inertia of rectangle with fake "mass"                  inertia of circle with fake "mass"     multiply real mass back in
+        double calculated = ( (((pow(length, 2) + pow(2*size, 2)) * (length * 2*size))/12) + ((pow(size, 2)/2) * Math.PI*pow(size, 2))) /inverseMass;
+        if (movable){
+            return  calculated;
+        }
+        return Double.POSITIVE_INFINITY;
+    }
+
     @Override
     public void draw(Graphics g, Viewport viewport) {
         Graphics2D g2 = (Graphics2D) g;
-        g.setColor(viewport.colors.get(colorIdx));
+
         double scale = viewport.worldToScreenScale(g);
 
         double radians = Math.toRadians(ang);
@@ -46,6 +154,15 @@ public class Pill extends Physical{
 
         Stroke stroke = g2.getStroke();
 
+        g2.setStroke(new BasicStroke(
+                thickness + 5,
+                BasicStroke.CAP_ROUND,
+                BasicStroke.JOIN_ROUND
+        ));
+        g.setColor(viewport.getColor(colorIdx).darker().darker());
+        g2.drawLine(x1, y1, x2, y2);
+
+        g.setColor(viewport.getColor(colorIdx));
         g2.setStroke(new BasicStroke(
                 thickness,
                 BasicStroke.CAP_ROUND,

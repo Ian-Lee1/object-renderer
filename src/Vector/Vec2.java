@@ -15,6 +15,17 @@ public class Vec2 {
             this.y = y;
         }
 
+        public Vec2 perp(){ //return a perpendicular vector.
+            return new Vec2(
+                    -this.y,
+                    this.x
+            );
+        }
+
+        public double cross(Vec2 other) {
+            return this.x * other.y - this.y * other.x;
+        }
+
         public double getX() {
             return x;
         }

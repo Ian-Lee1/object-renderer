@@ -17,9 +17,33 @@ public class Polygon extends Physical{
         this.acc = new Vec2(0, 0);
     }
 
+    public Polygon(String cmdParameters){
+        initFromString(cmdParameters);
+    }
+
+    @Override
+    public void initFromString(String parameters) {
+
+    }
+
+    @Override
+    public void applyRotate(double stepScale) {
+
+    }
+
+    @Override
+    public Vec2 getCenterOfMass() {
+        return null;
+    }
+
+    @Override
+    public double getInertia() {
+        return 0;
+    }
+
     @Override
     public void draw(Graphics g, Viewport viewport) {
-        g.setColor(viewport.colors.get(colorIdx));
+        g.setColor(viewport.getColor(colorIdx));
         double radians = Math.toRadians(ang);
         double cos = Math.cos(radians);
         double sin = Math.sin(radians);

@@ -19,6 +19,12 @@ public class Viewport{
         colors = new ArrayList<>();
     }
 
+    public Color getColor(int i){
+        if (colors.size() == 0){
+            return Color.RED;
+        }
+        return colors.get(i % colors.size());
+    }
     public double worldToScreenScale(Graphics g){
         return g.getClipBounds().height / zoom;
     }

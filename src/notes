@@ -3,4 +3,39 @@
 
 
 
+    //POTNETIAL COMMAND SYSTEM IMPROVEMENT - look into Consumer<String> thing
+    private final Map<String, Consumer<String>> commands = new HashMap<>();
+
+    Initialization:
+
+    Java
+    commands.put("help", args -> showHelp());
+
+    commands.put("sm_reset", args -> resetSimulation());
+
+    commands.put("sm_step", args -> stepSimulation(args));
+
+    commands.put("exec", args -> executeFile(args));
+
+
+
+    Java
+    public void command(String command) {
+
+    String[] split = command.split("\\s+", 2);
+
+    String name = split[0].toLowerCase();
+    String args = split.length > 1 ? split[1] : "";
+
+    Consumer<String> handler = commands.get(name);
+
+    if (handler != null) {
+    handler.accept(args);
+    } else {
+    System.out.println("Unknown command: " + name);
+    }
+    }
+
+
+
     each object should have a method for drawing itself onto a given panel

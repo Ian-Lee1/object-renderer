@@ -6,7 +6,7 @@ import Solver.LegacySolver.Solver;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Normal implements Force{
+public class Normal extends Force{
     Solver solver;
     public Normal(Solver solver){
         this.solver = solver;

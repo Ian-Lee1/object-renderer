@@ -6,7 +6,7 @@ import Objects.Physical.Physical;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Drag implements Force{
+public class Drag extends Force{
     @Override
     public void applyForces(Physical obj, ArrayList<Physical> objects, HashMap<String, Double> attributes) {
         if (attributes.containsKey("drag")){

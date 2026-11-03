@@ -12,7 +12,7 @@ import static Constants.Constants.BOUNCYNESS;
 public class PillPolySolver implements Solver{
 
     @Override
-    public void resolve(List<Physical> objects) {
+    public void resolve(List<Physical> objects, double stepScale) {
         for (int i = 0; i < objects.size() ; i++){
             for (int j = i+1; j < objects.size() ; j++){
                 Physical obj = objects.get(i);
@@ -20,7 +20,7 @@ public class PillPolySolver implements Solver{
                 if (obj.movable || obj2.movable){
                     Contact contact = collide(obj, obj2);
                     if (contact.penetration >= 0){
-                        applyImpulse(contact);
+                        applyImpulse(contact, stepScale);
                     }
                 }
             }
@@ -205,21 +205,49 @@ public class PillPolySolver implements Solver{
         }
     }
 
-    private void applyImpulse(Contact contact){
+    private void applyImpulse(Contact contact, double stepScale){
         Physical obj = contact.a;
         Physical obj2 = contact.b;
         //=========APPLY IMPULSE==========
         //reletive velocity
-        Vec2 rv = obj.vel.sub(obj2.vel);
+            //Calculate rotational velocities of both points
+        Vec2 rA = contact.contact[0].sub(contact.a.getCenterOfMass());
+        Vec2 rB = contact.contact[0].sub(contact.b.getCenterOfMass());
+
+        Vec2 vA = obj.vel.add(rA.perp().mul(contact.a.angVel));
+        Vec2 vB = obj2.vel.add(rB.perp().mul(contact.b.angVel));
+
+        Vec2 rv = vA.sub(vB);
+
         //in normal
         double velAlongNormal = rv.dot(contact.normal);
 
         if (velAlongNormal < 0) { //is moving together
-            double j = -(1 + BOUNCYNESS) * velAlongNormal;
-            j /= (obj.inverseMass) + (obj2.inverseMass);
+            //apply impulse along normal of contact, factoring in rotational velocities
+            double rnA = 0;//rA.cross(contact.normal);
+            double rnB = 0;//rB.cross(contact.normal);
+
+            double invInertiaA = 1/contact.a.getInertia();
+            double invInertiaB = 1/contact.b.getInertia();
+
+            double denom =
+                    contact.a.inverseMass +
+                    contact.b.inverseMass +
+                            rnA * rnA * invInertiaA +
+                            rnB * rnB * invInertiaB;
+
+            double j = -(1 + BOUNCYNESS) * velAlongNormal / denom;
+            //apply velocity impulse
             Vec2 impulse = contact.normal.mul(j);
             obj.vel = (obj.vel.add(impulse.mul(obj.inverseMass)));
             obj2.vel = (obj2.vel.sub(impulse.mul(obj2.inverseMass)));
+
+            //apply angular impulse
+            /*
+            double angularImpulseA = rA.cross(impulse);
+            double angularImpulseB = rB.cross(impulse);
+            contact.a.angVel += angularImpulseA * invInertiaA;
+            contact.b.angVel -= angularImpulseB * invInertiaB;*/
         }
     }
 }
