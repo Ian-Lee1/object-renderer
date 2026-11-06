@@ -1,11 +1,23 @@
 package Objects;
 
+import Objects.Physical.Physical;
+
 import java.awt.*;
 
 public class TestWorld implements World{
 
     private Color background = new Color(0,0,0);
     private Color lines = new Color(255, 255, 255);
+
+    @Override
+    public int getIndex(Physical obj) {
+        return 0;
+    }
+
+    @Override
+    public Viewport getViewport() {
+        return null;
+    }
 
     public void update(){
         //World is static and without objects
@@ -39,6 +51,12 @@ public class TestWorld implements World{
             System.out.println("Unknown command.");
         }
     }
+
+    @Override
+    public Physical detectAt(int vpX, int vpY, int x, int y) {
+        return null;
+    }
+
     private Color strToColor(String str){
             String[] parts = str.split(",");
 

@@ -22,6 +22,26 @@ public class Polygon extends Physical{
     }
 
     @Override
+    public double getBoundLeft() {
+        return 0;
+    }
+
+    @Override
+    public double getBoundRight() {
+        return 0;
+    }
+
+    @Override
+    public double getBoundTop() {
+        return 0;
+    }
+
+    @Override
+    public double getBoundBottom() {
+        return 0;
+    }
+
+    @Override
     public void initFromString(String parameters) {
 
     }

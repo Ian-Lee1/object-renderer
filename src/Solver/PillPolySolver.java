@@ -5,6 +5,8 @@ import Objects.Physical.Pill;
 import Objects.Physical.Polygon;
 import Vector.Vec2;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,20 +16,32 @@ public class PillPolySolver implements Solver{
 
     @Override
     public void resolve(List<Physical> objects, double stepScale, HashMap<String, Double> attributes) {
-        for (int i = objects.size()-1 ; i >= 0 ; i--){
+        //sort by left bound
+        objects.sort(Comparator.comparing(Physical::getBoundLeft));
+        for (int i = 0; i < objects.size(); i++) {
+        Physical obj = objects.get(i);
+        double right = obj.getBoundRight();
 
-            Physical obj = objects.get(i);
-            for (int j = i-1; j >=0 ; j--){
-                Physical obj2 = objects.get(j);
-                if (obj.movable || obj2.movable){
+        //for each object behind i on the x axis
+        for (int j = i + 1; j < objects.size(); j++) {
+            Physical obj2 = objects.get(j);
+            //no more overlap is possible after this object
+            if (obj2.getBoundLeft() > right) {
+                break;
+            }
+
+            //bounds overlap on the x axis
+            if (obj.getBoundBottom() < obj2.getBoundTop() || obj.getBoundTop() > obj2.getBoundBottom()) {
+                if ((obj.movable || obj2.movable) && (obj.inverseMass != 0 || obj2.inverseMass != 0)) {
                     Contact contact = collide(obj, obj2);
-                    if (contact.penetration >= 0){
+                    if (contact.penetration >= 0) {
                         applyImpulse(contact, stepScale, attributes);
                     }
                 }
-
-            }
         }
+    }
+}
+
     }
 
     private Contact PolyPolyContact(Polygon obj, Polygon obj2){
@@ -41,13 +55,15 @@ public class PillPolySolver implements Solver{
         objLineStart = obj.origin;
         objLineEnd = obj.origin;
         if (obj.length > 0) {
-            objLineEnd = obj.origin.add(Vec2.radToVec(Math.toRadians(obj.ang)).mul(obj.length));
+            objLineEnd = obj.origin.add(Vec2.radToVec(Math.toRadians(obj.ang)).mul(obj.length/2));
+            objLineStart = obj.origin.sub(Vec2.radToVec(Math.toRadians(obj.ang)).mul(obj.length/2));
         }
 
         obj2LineStart = obj2.origin;
         obj2LineEnd = obj2.origin;
         if (obj2.length > 0) {
-            obj2LineEnd = obj2.origin.add(Vec2.radToVec(Math.toRadians(obj2.ang)).mul(obj2.length));
+            obj2LineEnd = obj2.origin.add(Vec2.radToVec(Math.toRadians(obj2.ang)).mul(obj2.length/2));
+            obj2LineStart = obj2.origin.sub(Vec2.radToVec(Math.toRadians(obj2.ang)).mul(obj2.length/2));
         }
         Points result;
         if (obj.length > 0 && obj2.length > 0) {
@@ -185,7 +201,7 @@ public class PillPolySolver implements Solver{
         return new Contact();
     }
 
-    private Contact collide(Physical obj, Physical obj2) {
+    public Contact collide(Physical obj, Physical obj2) {
         if (obj instanceof Polygon) {
             if (obj2 instanceof Polygon) {
                 return PolyPolyContact((Polygon) obj, (Polygon) obj2);

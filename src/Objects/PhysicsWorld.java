@@ -14,8 +14,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
-import static Constants.Constants.FPS;
-import static Constants.Constants.SUBSTEPSDEFAULT;
+import Solver.Contact;
+
+import static Constants.Constants.*;
 
 public class PhysicsWorld implements World{
     private ArrayList<Physical> objects = new ArrayList<>();
@@ -44,7 +45,6 @@ public class PhysicsWorld implements World{
         attributes.clear();
         attributes.put("width", 10.0);
         attributes.put("height", 10.0);
-        attributes.put("substeps", (double) SUBSTEPSDEFAULT);
     }
 
     private void resetObjects() {
@@ -101,39 +101,60 @@ public class PhysicsWorld implements World{
 
     }
 
+    public Physical detectAt(int vpX, int vpY, int x, int y){
+        //create fake pill location, then use solver to find a match.
+        Vec2 location = viewport.screenToWorld(vpX, vpY, x, y);
+        double scale = viewport.zoom/vpY;
+        Pill pillChecker = new Pill(location, 0, scale*3, 0, 0);
+        for (Physical obj : objects){
+            Contact contact = solver.collide(pillChecker, obj);
+            if (contact.penetration >= 0){
+                return obj;
+            }
+        }
+        //if solver does not find a match or throws error, use obj's centre of mass and calculate distance.
+        return null;
+    }
+
     public void setSolver(Solver solver){
         this.solver = solver;
     }
 
+    @Override
+    public int getIndex(Physical obj) {
+        return objects.indexOf(obj);
+    }
+
+    @Override
+    public Viewport getViewport() {
+        return viewport;
+    }
+
     public void update(){
         if (solver != null) {
-            double stepScale = (1.0 / FPS) * (1.0 / attributes.get("substeps"));
-            for (int i = 0; i < attributes.get("substeps"); i++) {
+            double stepScale = (1.0 / FPS);
+            for (Physical obj : objects) {
 
-                for (Physical obj : objects) {
-                    obj.acc =new Vec2(0, 0);
-                    for (Force force : forces) {
-                        force.applyForces(obj, objects, attributes);
-                    }
-                    if (obj.movable) {
-                        //ACCELERATION
-
-
-                        //VELOCITY
-
-
-                        obj.applyRotate(stepScale);
-                        //obj.ang = 15;
-                        obj.vel = (obj.vel.add(obj.acc.mul(stepScale)));
-                        //MOVE
-                        obj.origin = (obj.origin.add(obj.vel.mul(stepScale)));
-                    } else {
-                        obj.vel = new Vec2(0,0);
-                        obj.angVel = 0;
-                    }
+                //ACCELERATION
+                obj.acc = new Vec2(0, 0);
+                for (Force force : forces) { //forces may change the objects' attributes, even if unmovable
+                    force.applyForces(obj, objects, attributes);
                 }
-                solver.resolve(objects, stepScale, attributes);
+
+                if (obj.movable) {
+                    //VELOCITY
+                    obj.vel = (obj.vel.add(obj.acc.mul(stepScale)));
+                    obj.applyRotate(stepScale);
+                    //MOVE
+                    obj.origin = (obj.origin.add(obj.vel.mul(stepScale)));
+
+                } else {
+                    obj.vel = new Vec2(0, 0);
+                    obj.angVel = 0;
+                }
+
             }
+            solver.resolve(objects, stepScale, attributes);
         }
     }
 
@@ -247,7 +268,7 @@ public class PhysicsWorld implements World{
                 }
                 else{ System.out.println("Width: " + attributes.get("width") + " | Height: " + attributes.get("height"));}
             }
-            else if (command.toLowerCase().startsWith("ent_create")) {
+            else if (command.toLowerCase().startsWith("ent_create ")) {
                 System.out.println("Creating object...");
                 try {
                     if (command.startsWith("force_", 11)){
@@ -259,6 +280,9 @@ public class PhysicsWorld implements World{
                 } catch (IllegalArgumentException e){
                     System.out.println("Creation failure: ");
                 }
+            }
+            else if (command.toLowerCase().startsWith("ent_remove ")) {
+
             }
             else if (command.toLowerCase().startsWith("exec ")){
                 String filePath = command.substring(5);

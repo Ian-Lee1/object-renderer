@@ -26,6 +26,47 @@ public class Pill extends Physical{
     }
 
     @Override
+    public String toString(){
+        StringBuilder builder = new StringBuilder();
+        builder.append("OBJ_: ").append("pill").append(" | ")
+                .append("ORIGIN: ").append(origin).append(" | ")
+                .append("VEL: ").append(vel).append(" | ")
+                .append("ACC: ").append(acc).append(" | ")
+                .append("ANG: ").append(ang).append(" | ")
+                .append("ANGVEL: ").append(angVel).append(" | ")
+                .append("MASS: ").append(1/inverseMass).append(" | ")
+                .append("MOVABLE: ").append(movable).append(" | ")
+
+                .append("SIZE: ").append(size).append(" | ")
+                .append("LENGTH: ").append(length).append(" | ")
+
+                .append("COLORIDX: ").append(colorIdx)
+                ;
+        return builder.toString();
+    }
+
+    @Override
+    public double getBoundLeft() {
+        return this.getCenterOfMass().getX() - length / 2 - size;
+    }
+
+    @Override
+    public double getBoundRight() {
+        return this.getCenterOfMass().getX() + length / 2 + size;
+    }
+
+    @Override
+    public double getBoundTop() {
+        return this.getCenterOfMass().getY() + length / 2 + size;
+    }
+
+    @Override
+    public double getBoundBottom() {
+        return this.getCenterOfMass().getY() - length / 2 - size;
+    }
+
+
+    @Override
     public void initFromString(String cmdParameters) {
         double doubleValue;
         Vec2 vecValue;
@@ -113,8 +154,8 @@ public class Pill extends Physical{
 
     @Override
     public Vec2 getCenterOfMass() {
-        Vec2 angVec = Vec2.radToVec(Math.toRadians(ang));
-        return origin.add(angVec.mul(length/2));
+        //Vec2 angVec = Vec2.radToVec(Math.toRadians(ang));
+        return origin;//.add(angVec.mul(length/2));
     }
 
     @Override
@@ -130,19 +171,35 @@ public class Pill extends Physical{
     @Override
     public void draw(Graphics g, Viewport viewport) {
         Graphics2D g2 = (Graphics2D) g;
+        if (viewport.antialiasing) {
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+        } else {
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_OFF
+            );
+        }
 
         double scale = viewport.worldToScreenScale(g);
 
         double radians = Math.toRadians(ang);
-
+        Vec2 start = origin.sub(
+                new Vec2(
+                        Math.cos(radians) * length/2,
+                        Math.sin(radians) * length/2
+                )
+        );
         Vec2 end = origin.add(
                 new Vec2(
-                        Math.cos(radians) * length,
-                        Math.sin(radians) * length
+                        Math.cos(radians) * length/2,
+                        Math.sin(radians) * length/2
                 )
         );
 
-        Vec2 screenPos = viewport.worldToScreen(g, origin);
+        Vec2 screenPos = viewport.worldToScreen(g, start);
         int x1 = (int) (screenPos.getX() + g.getClipBounds().getWidth()/2);
         int y1 = (int)-(screenPos.getY() - g.getClipBounds().getHeight()/2);
 

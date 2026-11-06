@@ -24,6 +24,11 @@ public abstract class Physical {
 
     public int colorIdx;
 
+    public abstract double getBoundLeft();
+    public abstract double getBoundRight();
+    public abstract double getBoundTop();
+    public abstract double getBoundBottom();
+
     public static Physical parsePhysical(String parameters) {
         if (parameters.toLowerCase().startsWith("pill") || parameters.toLowerCase().startsWith("poly")) {
             return new Pill(parameters.substring(4) + " ");

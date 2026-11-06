@@ -6,9 +6,9 @@ vp_reset
 vp_colors random 5
 sm_attribute bouncyness 0.999
 
-ent_create phys_pill origin -0.5,-0.5 size 1.5 length 61 colorIdx 0
-ent_create phys_pill origin -0.5,60.5 size 1.5 length 61 colorIdx 0
-ent_create phys_pill origin -0.5,-0.5 size 1.5 length 61 colorIdx 0 ang 90
-ent_create phys_pill origin 60.5,-0.5 size 1.5 length 61 colorIdx 0 ang 90
+ent_create phys_pill origin 30,0 size 1.5 length 61 colorIdx 0
+ent_create phys_pill origin 30,60 size 1.5 length 61 colorIdx 0
+ent_create phys_pill origin 0,30 size 1.5 length 61 colorIdx 0 ang 90
+ent_create phys_pill origin 60,30 size 1.5 length 61 colorIdx 0 ang 90
 
 sm_attribute substeps 1

@@ -1,32 +1,41 @@
 package Panels;
 
+import Objects.Physical.Physical;
+import Objects.Viewport;
 import Objects.World;
+import Vector.Vec2;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 
 import static Constants.Constants.FPS;
 
-public class WorldPanel extends JPanel implements KeyListener, MouseInputListener {
-    private final World world;
+public class WorldPanel extends JPanel implements KeyListener, MouseInputListener, MouseWheelListener {
+    int mouselastX = -1;
+    int mouselastY = -1;
+    public final World world;
     private boolean cmdMode = false;
     private boolean paused = false;
     private CmdPanel cmdPanel;
+    private InfoPanel infoPanel;
 
     public WorldPanel(World world){
         this.setFocusable(true);
         this.requestFocusInWindow();
         this.addKeyListener(this);
         this.addMouseListener(this);
+        this.addMouseMotionListener(this);
+        this.addMouseWheelListener(this);
         this.world = world;
     }
 
     public void setCmdPanel(CmdPanel cmdPanel){
         this.cmdPanel = cmdPanel;
+    }
+    public void setInfoPanel(InfoPanel infoPanel){
+        this.infoPanel = infoPanel;
     }
 
     @Override
@@ -60,13 +69,12 @@ public class WorldPanel extends JPanel implements KeyListener, MouseInputListene
     public void keyPressed(KeyEvent e) {
         // Fires when a key physically goes down (ideal for game controls)
         if (e.getKeyCode() == KeyEvent.VK_BACK_QUOTE) {
-            cmdPanel.setVisible(false);
-            cmdPanel.setFocusable(false);
             cmdMode = !cmdMode;
-            if (cmdMode) {
-                cmdPanel.setVisible(true);
-                cmdPanel.setFocusable(true);
-            }
+            infoPanel.setVisible(cmdMode);
+            infoPanel.setFocusable(cmdMode);
+            cmdPanel.setVisible(cmdMode);
+            cmdPanel.setFocusable(cmdMode);
+
             this.repaint();
         }
     }
@@ -83,23 +91,34 @@ public class WorldPanel extends JPanel implements KeyListener, MouseInputListene
 
     @Override
     public void mouseClicked(MouseEvent e) {
-
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        if(e.getButton()==MouseEvent.BUTTON1) {
-            cmdMode = false;
-            cmdPanel.setVisible(false);
-            cmdPanel.setFocusable(false);
+        if(e.getButton()==MouseEvent.BUTTON1) { //click back into simulation
+            cmdMode = !cmdMode;
+            infoPanel.setVisible(cmdMode);
+            infoPanel.setFocusable(cmdMode);
+            cmdPanel.setVisible(cmdMode);
+            cmdPanel.setFocusable(cmdMode);
+            world.getViewport().antialiasing = cmdMode;
             this.requestFocusInWindow();
             this.repaint();
+        }else if (e.getButton()==MouseEvent.BUTTON3){ //detect selected object
+            int x = e.getX();
+            int y = e.getY();
+            Physical obj = world.detectAt(this.getWidth(), this.getHeight(), x, this.getHeight()-y);
+            infoPanel.objectInfo.setText("No object selected.");
+            if (obj != null){
+                infoPanel.objectInfo.setText(obj.toString().replace('|', '\n'));
+            }
         }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-
+        mouselastX = -1;
+        mouselastY = -1;
     }
 
     @Override
@@ -114,11 +133,34 @@ public class WorldPanel extends JPanel implements KeyListener, MouseInputListene
 
     @Override
     public void mouseDragged(MouseEvent e) {
+        if (mouselastX < 0){
+            mouselastX = e.getX();
+            mouselastY = e.getY();
+        } else {
+            Viewport viewport = world.getViewport();
+            int movedX = e.getX() - mouselastX;
+            int movedY = e.getY() - mouselastY;
 
+            double dx = (0.0 + movedX) / (this.getHeight() / viewport.zoom);
+            double dy = (0.0 + movedY) / (this.getHeight() / viewport.zoom);
+            viewport.origin = viewport.origin.add(new Vec2(-dx, dy));
+            mouselastX = e.getX();
+            mouselastY = e.getY();
+        }
+        this.repaint();
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
+    }
 
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        if(e.getWheelRotation()>0){
+            world.getViewport().zoom *= 1.1;
+        } else {
+            world.getViewport().zoom *= 1/1.1;
+        }
+        this.repaint();
     }
 }

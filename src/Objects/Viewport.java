@@ -9,6 +9,7 @@ public class Viewport{
     public Vec2 origin;
     public Vec2 vel;
     public double zoom;
+    public boolean antialiasing;
 
     public ArrayList<Color> colors;
 
@@ -17,6 +18,7 @@ public class Viewport{
         vel = new Vec2(0, 0);
         zoom = 0;
         colors = new ArrayList<>();
+        antialiasing = false;
     }
 
     public Color getColor(int i){
@@ -25,6 +27,15 @@ public class Viewport{
         }
         return colors.get(i % colors.size());
     }
+
+    public Vec2 screenToWorld(int w, int h, int x, int y){
+        double dx = x-w/2;
+        double dy = y-h/2;
+        dx /= h/zoom;
+        dy /= h/zoom;
+        return new Vec2(dx, dy).add(origin);
+    }
+
     public double worldToScreenScale(Graphics g){
         return g.getClipBounds().height / zoom;
     }

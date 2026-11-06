@@ -3,6 +3,7 @@ package app;
 import Constants.Constants;
 import Objects.PhysicsWorld;
 import Panels.CmdPanel;
+import Panels.InfoPanel;
 import Panels.WorldPanel;
 import Objects.TestWorld;
 import Objects.World;
@@ -38,10 +39,15 @@ public class ViewBuilder {
     public ViewBuilder addWorldFrame(){
         worldPanel = new WorldPanel(world);
         CmdPanel cmdPanel = new CmdPanel();
+        InfoPanel infoPanel = new InfoPanel();
         cmdPanel.wp = worldPanel;
+        worldPanel.setInfoPanel(infoPanel);
         worldPanel.setCmdPanel(cmdPanel);
         mainPanel.add(worldPanel);
         mainPanel.add(cmdPanel, BorderLayout.SOUTH);
+        mainPanel.add(infoPanel, BorderLayout.EAST);
+
+
         return this;
     }
 

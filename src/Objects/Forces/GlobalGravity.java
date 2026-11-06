@@ -9,8 +9,8 @@ import java.util.HashMap;
 public class GlobalGravity extends Force {
     @Override
     public void applyForces(Physical obj, ArrayList<Physical> objects, HashMap<String, Double> attributes) {
-        if (attributes.containsKey("gravity")) {
-                obj.acc = obj.acc.add(new Vec2(0, attributes.get("gravity")));
+        if (attributes.containsKey("ggravity")) {
+                obj.acc = obj.acc.add(new Vec2(0, attributes.get("ggravity")));
         }
     }
 }
