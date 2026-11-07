@@ -77,7 +77,7 @@ public class Vec2 {
     public Vec2 toUnit() {
         double length = length();
         if (length == 0) {
-            throw new ArithmeticException("Cannot normalize zero-length vector");
+            return new Vec2(Math.random(), Math.random()); //throw new ArithmeticException("Cannot normalize zero-length vector");
         }
         return new Vec2(x / length, y / length);
     }

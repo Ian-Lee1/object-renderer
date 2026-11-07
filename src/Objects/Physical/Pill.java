@@ -4,6 +4,7 @@ import Objects.Viewport;
 import Vector.Vec2;
 
 import java.awt.*;
+import java.util.HashMap;
 
 import static java.lang.Math.pow;
 
@@ -19,16 +20,27 @@ public class Pill extends Physical{
         this.colorIdx = ind;
         this.vel = new Vec2(0, 0);
         this.acc = new Vec2(0, 0);
+        movable = false;
+        attributes = new HashMap<>();
     }
 
     public Pill(String cmdParameters){
-        initFromString(cmdParameters);
+        this.origin = new Vec2(0, 0);
+        movable = false;
+        this.ang = 0;
+        this.size = 1;
+        this.length = 0;
+        this.colorIdx = 0;
+        this.vel = new Vec2(0, 0);
+        this.acc = new Vec2(0, 0);
+        attributes = new HashMap<>();
+        changeFromString(cmdParameters);
     }
 
     @Override
     public String toString(){
         StringBuilder builder = new StringBuilder();
-        builder.append("OBJ_: ").append("pill").append(" | ")
+        builder.append("PHYS_: ").append("pill").append(" | ")
                 .append("ORIGIN: ").append(origin).append(" | ")
                 .append("VEL: ").append(vel).append(" | ")
                 .append("ACC: ").append(acc).append(" | ")
@@ -40,8 +52,9 @@ public class Pill extends Physical{
                 .append("SIZE: ").append(size).append(" | ")
                 .append("LENGTH: ").append(length).append(" | ")
 
-                .append("COLORIDX: ").append(colorIdx)
-                ;
+                .append("COLORIDX: ").append(colorIdx).append("\n")
+                .append("===ATTRIBUTES===").append("\n");
+        attributes.forEach((key, value) -> builder.append(key).append(": ").append(value).append("\n"));
         return builder.toString();
     }
 
@@ -65,55 +78,77 @@ public class Pill extends Physical{
         return this.getCenterOfMass().getY() - length / 2 - size;
     }
 
-
     @Override
-    public void initFromString(String cmdParameters) {
+    public void changeFromString(String cmdParameters) {
         double doubleValue;
         Vec2 vecValue;
         // === REQUIRED (raise exception listing first missing parameter) ===
         // origin
-        vecValue = getVec2(cmdParameters, "origin ");
+        vecValue = getVec2(cmdParameters.toLowerCase(), " origin ");
         if (vecValue == null){
-            throw new IllegalArgumentException("command is missing required origin parameter.");
+            vecValue = origin;
         }
         origin = vecValue;
         // size
-        doubleValue = getDouble(cmdParameters, "size ");
+        doubleValue = getDouble(cmdParameters.toLowerCase(), " size ");
         if (Double.isNaN(doubleValue) ){
-            throw new IllegalArgumentException("command is missing required origin parameter.");
+            doubleValue = size;
         }
         size = doubleValue;
 
         // === OPTIONAL ===
         // ang - default 0
-        ang = getDouble(cmdParameters, "ang ");
-        if (Double.isNaN(ang) ){
-            ang = 0;
+        doubleValue = getDouble(cmdParameters.toLowerCase(), " ang ");
+        if (Double.isNaN(doubleValue) ){
+            doubleValue = ang;
         }
+        ang = doubleValue;
         // length - 0
-        length = getDouble(cmdParameters, "length ");
-        if (Double.isNaN(length) ){
-            length = 0;
+        doubleValue = getDouble(cmdParameters.toLowerCase(), " length ");
+        if (Double.isNaN(doubleValue) ){
+            doubleValue = length;
         }
+        length = doubleValue;
+
         // angVel - 0
-        angVel = getDouble(cmdParameters, "angVel ");
-        if (Double.isNaN(angVel) ){
-            angVel = 0;
+        doubleValue = getDouble(cmdParameters.toLowerCase(), " angvel ");
+        if (Double.isNaN(doubleValue) ){
+            doubleValue = angVel;
         }
+        angVel = doubleValue;
+
         // colorIdx - default 0 (color index, does not directly store color but only the index from a color list)
-        colorIdx = (int)getDouble(cmdParameters, "colorIdx "); //casting converts NaN to 0
+        doubleValue = getDouble(cmdParameters.toLowerCase(), " coloridx "); //casting converts NaN to 0
+        if (Double.isNaN(doubleValue)){
+            doubleValue = colorIdx;
+        }
+        colorIdx = (int)doubleValue;
+
         // vel - default 0,0 - Vec2 has parseVec2 method, in format "x,y".
-        vel = getVec2(cmdParameters, "vel ");
-        if (vel == null){
-            vel = new Vec2(0, 0);
+        vecValue = getVec2(cmdParameters.toLowerCase(), " vel ");
+        if (vecValue == null){
+            vecValue = vel;
         }
+        vel = vecValue;
+
         // mass - INF = inverseMass = 0
-        inverseMass = 1.0/getDouble(cmdParameters, "mass ");
-        if (Double.isNaN(inverseMass) ){
-            inverseMass = 0;
+        doubleValue = 1.0/getDouble(cmdParameters.toLowerCase(), " mass ");
+        if (Double.isNaN(doubleValue) ){
+            doubleValue = inverseMass;
         }
+        inverseMass = doubleValue;
+
+        if (!attributes.containsKey("hash")) {
+            attributes.put("hash", getDouble(cmdParameters.toLowerCase(), " hash "));
+            if (attributes.get("hash").isNaN()) {
+                attributes.put("hash", (double) (int) (Math.random() * 1000000) / 1000);
+            }
+        }
+
         // movable - false
-        movable = getDouble(cmdParameters, "movable ") > 0; //if NaN, false.
+        if (cmdParameters.contains(" movable ")) {
+            movable = getDouble(cmdParameters.toLowerCase(), "movable ") > 0; //if NaN, false.
+        }
     }
 
     private Vec2 getVec2(String cmd, String paraType){
@@ -137,6 +172,9 @@ public class Pill extends Physical{
     }
 
     private String getNextSegment(String str){
+        if (str.indexOf(' ') == -1){
+            return str;
+        }
         return str.substring(0, str.indexOf(' '));
     }
 
@@ -229,5 +267,17 @@ public class Pill extends Physical{
         g2.drawLine(x1, y1, x2, y2);
 
         g2.setStroke(stroke);
+    }
+
+    @Override
+    public Physical clone() {
+        Pill pill = new Pill(origin, ang, size, length, colorIdx);
+        pill.vel = vel;
+        pill.inverseMass = inverseMass;
+        pill.angVel = angVel;
+        pill.movable = movable;
+        pill.attributes.putAll(attributes);
+        pill.attributes.put("hash", (double) (int) (Math.random() * 1000000) / 1000);
+        return pill;
     }
 }

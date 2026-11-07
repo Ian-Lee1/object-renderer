@@ -3,6 +3,7 @@ package Objects;
 import Objects.Physical.Physical;
 
 import java.awt.*;
+import java.util.HashMap;
 
 public class TestWorld implements World{
 
@@ -54,6 +55,11 @@ public class TestWorld implements World{
 
     @Override
     public Physical detectAt(int vpX, int vpY, int x, int y) {
+        return null;
+    }
+
+    @Override
+    public HashMap getAttributes() {
         return null;
     }
 

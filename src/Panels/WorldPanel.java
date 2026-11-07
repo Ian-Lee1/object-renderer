@@ -20,6 +20,7 @@ public class WorldPanel extends JPanel implements KeyListener, MouseInputListene
     private boolean paused = false;
     private CmdPanel cmdPanel;
     private InfoPanel infoPanel;
+    private boolean tryUpdatePos = true;
 
     public WorldPanel(World world){
         this.setFocusable(true);
@@ -109,6 +110,7 @@ public class WorldPanel extends JPanel implements KeyListener, MouseInputListene
             int y = e.getY();
             Physical obj = world.detectAt(this.getWidth(), this.getHeight(), x, this.getHeight()-y);
             infoPanel.objectInfo.setText("No object selected.");
+            infoPanel.selectedObj = obj;
             if (obj != null){
                 infoPanel.objectInfo.setText(obj.toString().replace('|', '\n'));
             }
@@ -152,6 +154,14 @@ public class WorldPanel extends JPanel implements KeyListener, MouseInputListene
 
     @Override
     public void mouseMoved(MouseEvent e) {
+        if(tryUpdatePos) {
+            try {
+                world.getAttributes().put("INTL_mouseX", (double)e.getX());
+                world.getAttributes().put("INTL_mouseY", (double)e.getY());
+            } catch (Exception _) {
+                tryUpdatePos = false;
+            }
+        }
     }
 
     @Override

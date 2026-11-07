@@ -3,6 +3,7 @@ package Objects;
 import Objects.Physical.Physical;
 
 import java.awt.*;
+import java.util.HashMap;
 
 public interface World {
     int getIndex(Physical obj);
@@ -12,4 +13,5 @@ public interface World {
     void command(String command);
     Physical detectAt(int vpX, int vpY, int x, int y);
 
+    HashMap getAttributes();
 }

@@ -16,6 +16,7 @@ public class CmdPanel extends JPanel {
         cmdField.addActionListener(e -> {
             wp.processCommand(cmdField.getText());
             cmdField.setText("");
+
     });
     }
 

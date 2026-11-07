@@ -41,12 +41,13 @@ public class ViewBuilder {
         CmdPanel cmdPanel = new CmdPanel();
         InfoPanel infoPanel = new InfoPanel();
         cmdPanel.wp = worldPanel;
+        infoPanel.wp = worldPanel;
         worldPanel.setInfoPanel(infoPanel);
         worldPanel.setCmdPanel(cmdPanel);
         mainPanel.add(worldPanel);
         mainPanel.add(cmdPanel, BorderLayout.SOUTH);
         mainPanel.add(infoPanel, BorderLayout.EAST);
-
+        world.command("exec config");
 
         return this;
     }

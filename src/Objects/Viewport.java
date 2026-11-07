@@ -28,7 +28,7 @@ public class Viewport{
         return colors.get(i % colors.size());
     }
 
-    public Vec2 screenToWorld(int w, int h, int x, int y){
+    public Vec2 screenToWorld(int w, int h, double x, double y){
         double dx = x-w/2;
         double dy = y-h/2;
         dx /= h/zoom;

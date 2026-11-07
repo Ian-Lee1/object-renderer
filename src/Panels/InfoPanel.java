@@ -14,9 +14,10 @@ public class InfoPanel extends JPanel {
     public WorldPanel wp;
     public JTextArea objectInfo;
     public Physical selectedObj;
+    JTextField objCmdField;
     public InfoPanel(){
         objectInfo = new JTextArea();
-        JTextField objCmdField = new JTextField(30);
+        objCmdField = new JTextField(30);
         objCmdField.setMaximumSize(new Dimension(350,40));
         objectInfo.setEditable(false);
         objectInfo.setText("No object selected.");
@@ -24,10 +25,7 @@ public class InfoPanel extends JPanel {
         scrollPane.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setPreferredSize(new Dimension(350,200));
 
-        objCmdField.addActionListener(e -> {
-            wp.processCommand("ent_keyvalues " + wp.world.getIndex(selectedObj) + " " + objCmdField.getText());
-            objCmdField.setText("");
-        });
+        objCmdField.addActionListener(e -> processCommand(objCmdField.getText()));
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.setFocusable(true);
         this.add(scrollPane);
@@ -35,4 +33,29 @@ public class InfoPanel extends JPanel {
         this.setVisible(false);
     }
 
+    private void processCommand(String cmd){
+        if (cmd.startsWith("kill")){
+            wp.world.command("ent_remove i " + wp.world.getIndex(selectedObj));
+
+        objCmdField.setText("");
+        String recreate = selectedObj.toString();
+
+        System.out.println("Recreate: ent_create " + recreate
+                .replace(':', ' ')
+                .replace(" | ", " ")
+                .replace("_  ", "_")
+                .replace(", ", ",")
+                .replace(" (", "")
+                .replace(") ", " ")
+                .replace("  ", " ")
+                .replace("true", "1")
+                .replace("false", "0").toLowerCase()
+        );
+        } else {
+            selectedObj.changeFromString(" "+ objCmdField.getText());
+        }
+
+        wp.repaint();
+
+    }
 }

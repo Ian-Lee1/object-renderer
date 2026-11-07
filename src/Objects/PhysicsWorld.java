@@ -24,9 +24,15 @@ public class PhysicsWorld implements World{
 
     private Viewport viewport;
     private HashMap<String, Double> attributes = new HashMap<>();
-
+    private boolean tracking = false;
+    private Physical tracked = null;
     private Solver solver = null;
 
+    int screenX =0, screenY =0;
+    @Override
+    public HashMap getAttributes(){
+        return attributes;
+    }
     public PhysicsWorld(){
         viewport = new Viewport();
         viewport.colors.add(Color.RED);
@@ -159,6 +165,12 @@ public class PhysicsWorld implements World{
     }
 
     public void draw(Graphics g){
+
+        screenX = g.getClipBounds().width;
+        screenY = g.getClipBounds().height;
+        if (tracking){
+            viewport.origin = tracked.origin;
+        }
             //draw objs
             for (Physical obj : objects){
                 obj.draw(g, viewport);
@@ -278,10 +290,70 @@ public class PhysicsWorld implements World{
                     }
                     System.out.println("Object created successfully.");
                 } catch (IllegalArgumentException e){
-                    System.out.println("Creation failure: ");
+                    System.out.println("Creation failure: " + e.getMessage());
                 }
             }
             else if (command.toLowerCase().startsWith("ent_remove ")) {
+                System.out.println("Removing object...");
+                int index = -1;
+                try {
+                if (command.charAt(11) == 'i'){ //by index
+                    index = Integer.parseInt(command.substring(13));
+                } else { //by hash
+                    double hash = Double.parseDouble(command.substring(11));
+                    for (Physical obj : objects) {
+                        if (obj.attributes.get("hash") == hash) {
+                            index = objects.indexOf(obj);
+                            break;
+                        }
+                    }
+                }
+                objects.remove(index);
+                System.out.println("Object remove successfully.");
+
+                } catch (Exception e){
+                    System.out.println("Removal failure: " + e.getMessage());
+                }
+            }
+            else if (command.toLowerCase().startsWith("ent_track")){
+                if (command.length() > 10){
+                    double hash = Double.parseDouble(command.substring(10));
+                    for (Physical obj : objects){
+                        if (obj.attributes.get("hash") == hash) {
+                            tracking = true;
+                            tracked = obj;
+                            break;
+                        }
+                    }
+                }else{
+                    tracking = false;
+                    tracked = null;
+                }
+            }
+            else if (command.toLowerCase().startsWith("ent_clone ")){
+                int section = command.lastIndexOf(' ');
+                double hash;
+                String loca = " ";
+                if (section > 10) {
+                    hash = Double.parseDouble(command.substring(10, section));
+                    loca = command.substring(section);
+                }
+                else {
+                    hash = Double.parseDouble(command.substring(10));
+                    loca += viewport.screenToWorld(screenX, screenY, attributes.get("INTL_mouseX"), screenY-attributes.get("INTL_mouseY")).toString().replace("(", "").replace(")", "").replace(" ", "");
+                }
+               Physical newPhys = null;
+                for (Physical obj : objects) {
+                    if (obj.attributes.get("hash") != null) {
+                        if (obj.attributes.get("hash") == hash) {
+                            newPhys = obj.clone();
+                            break;
+                        }
+                    }
+                }
+                newPhys.changeFromString(" origin"+ loca);
+                objects.add(newPhys);
+
 
             }
             else if (command.toLowerCase().startsWith("exec ")){
@@ -307,6 +379,10 @@ public class PhysicsWorld implements World{
                                     sm_attributes [clear/[attribute]] [null/[double]] | clears all attributes, or add/change the specified attribute.
                                 ENTITIES - ent_
                                     ent_create [entity] [keyvalues] | create an entity with the given keyvalues
+                                    ent_remove [int/str] | rmeoves an entity based on its index or targetname.
+                                    ent_find [hash double] | selects the entity with the matching hash and moves the camera to it.
+                                    ent_track [hash double/null] | tracks the entity with the matching hash, or disables the track.
+                                    ent_clone [hash double] [double,double] | clone the object matching the hash to the new location.
                                 EXECUTE FILE - exec
                                     exec [filePath] | execute each line in a file in script/ as a command in the command field. Beware of infinite loops if exec calls are nested.
                                 """);

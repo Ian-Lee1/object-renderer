@@ -36,7 +36,8 @@ public abstract class Physical {
         throw new IllegalArgumentException("Cannot create Unsupported type " + parameters.substring(0, parameters.indexOf(' ')));
     }
 
-    public abstract void initFromString(String parameters); //init the object from a string. If a required parameter is not found, raise an exception. If it is optional, fill in with default values.
+
+    public abstract void changeFromString(String parameters); //init the object from a string. If a required parameter is not found, raise an exception. If it is optional, fill in with default values.
 
     public abstract void applyRotate(double stepScale); //apply angVel to ang, rotating the object origin around the centre of mass.
 
@@ -45,4 +46,6 @@ public abstract class Physical {
     public abstract double getInertia();
 
     public abstract void draw(Graphics g, Viewport vp);
+
+    public abstract Physical clone();
 }

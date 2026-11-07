@@ -18,7 +18,7 @@ public class Polygon extends Physical{
     }
 
     public Polygon(String cmdParameters){
-        initFromString(cmdParameters);
+        changeFromString(cmdParameters);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class Polygon extends Physical{
     }
 
     @Override
-    public void initFromString(String parameters) {
+    public void changeFromString(String parameters) {
 
     }
 
@@ -86,6 +86,11 @@ public class Polygon extends Physical{
         }
 
         g.fillPolygon(xs, ys, vertices.length);
+    }
+
+    @Override
+    public Physical clone() {
+        return null;
     }
 
 }
