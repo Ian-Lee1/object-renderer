@@ -40,6 +40,7 @@ public class Viewport{
         return g.getClipBounds().height / zoom;
     }
     public Vec2 worldToScreen(Graphics g, Vec2 pos){
-        return (pos.sub(origin)).mul(worldToScreenScale(g));
+
+        return (pos.sub(origin)).mul(worldToScreenScale(g)).add(new Vec2( g.getClipBounds().getWidth()/2, -g.getClipBounds().getHeight()/2)).mulSep(1,-1);
     }
 }

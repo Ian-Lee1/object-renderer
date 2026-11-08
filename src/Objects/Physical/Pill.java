@@ -35,6 +35,10 @@ public class Pill extends Physical{
         this.acc = new Vec2(0, 0);
         attributes = new HashMap<>();
         changeFromString(cmdParameters);
+        if (Math.random()<0.1) {
+            attributes.put("t_l", 40.0);
+            attributes.put("t_f", 10.0);
+        }
     }
 
     @Override
@@ -149,6 +153,11 @@ public class Pill extends Physical{
         if (cmdParameters.contains(" movable ")) {
             movable = getDouble(cmdParameters.toLowerCase(), "movable ") > 0; //if NaN, false.
         }
+        if (cmdParameters.contains(" att ")) {
+            int section = cmdParameters.indexOf(' ', cmdParameters.indexOf(" att ")+ 6);
+            String key = cmdParameters.substring(cmdParameters.indexOf(" att ")+ 5, section);
+            attributes.put(key, getDouble(cmdParameters, " att " + key + " "));
+        }
     }
 
     private Vec2 getVec2(String cmd, String paraType){
@@ -238,12 +247,12 @@ public class Pill extends Physical{
         );
 
         Vec2 screenPos = viewport.worldToScreen(g, start);
-        int x1 = (int) (screenPos.getX() + g.getClipBounds().getWidth()/2);
-        int y1 = (int)-(screenPos.getY() - g.getClipBounds().getHeight()/2);
+        int x1 = (int) (screenPos.getX());// + g.getClipBounds().getWidth()/2);
+        int y1 = (int) (screenPos.getY());// - g.getClipBounds().getHeight()/2);
 
         screenPos = viewport.worldToScreen(g, end);
-        int x2 = (int) (screenPos.getX() + g.getClipBounds().getWidth()/2);
-        int y2 = (int)-(screenPos.getY() - g.getClipBounds().getHeight()/2);
+        int x2 = (int) (screenPos.getX());// + g.getClipBounds().getWidth()/2);
+        int y2 = (int) (screenPos.getY());// - g.getClipBounds().getHeight()/2);
 
         float thickness = (float)(size * 2 * scale);
 

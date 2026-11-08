@@ -1,0 +1,25 @@
+sm_reset
+sm_attribute a_point_amt 5
+sm_attribute a_1_x 0
+sm_attribute a_1_y 0
+sm_attribute a_1_g 850
+sm_attribute a_2_x 60
+sm_attribute a_2_y 0
+sm_attribute a_2_g 700
+sm_attribute a_3_x 30
+sm_attribute a_3_y 40
+sm_attribute a_3_g 600
+sm_attribute a_4_x 30
+sm_attribute a_4_y 10
+sm_attribute a_4_g -100
+
+
+ent_create force_attractor
+//ent_create phys_pill origin 0,5 vel 5,0 movable 1
+exec randomPills
+
+sm_attribute bouncyness 0.5
+vp_reset
+vp_colors random 3
+vp_origin 30,22
+vp_zoom 80

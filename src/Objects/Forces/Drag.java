@@ -2,7 +2,9 @@ package Objects.Forces;
 
 import Constants.Constants;
 import Objects.Physical.Physical;
+import Objects.Viewport;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -14,5 +16,10 @@ public class Drag extends Force{
             obj.acc = (obj.acc.sub(obj.vel.mul(attributes.get("drag")/ obj.getInertia()).mul( -1/(obj.vel.lengthSq()+1) + 1 )   ));
             obj.angVel -= obj.angVel*attributes.get("drag")*0.005/(pow(obj.getInertia(),2)+1);
         }
+    }
+
+    @Override
+    public void draw(Graphics g, Viewport vp, HashMap<String, Double> attributes) {
+        //nothing to draw
     }
 }

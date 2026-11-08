@@ -34,7 +34,11 @@ public class InfoPanel extends JPanel {
     }
 
     private void processCommand(String cmd){
-        if (cmd.startsWith("kill")){
+        if (cmd.startsWith("tracer")){
+            selectedObj.attributes.put("t_l", 500.0);
+            selectedObj.attributes.put("t_f", 5.0);
+        }
+        else if (cmd.startsWith("kill")){
             wp.world.command("ent_remove i " + wp.world.getIndex(selectedObj));
 
         objCmdField.setText("");

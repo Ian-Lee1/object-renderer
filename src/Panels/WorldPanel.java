@@ -41,6 +41,7 @@ public class WorldPanel extends JPanel implements KeyListener, MouseInputListene
 
     @Override
     public void paint(Graphics g){
+        world.getViewport().antialiasing = cmdMode;
         g.setColor(new Color(0, 0, 0));
         g.fillRect(0, 0, g.getClipBounds().width, g.getClipBounds().height);
         world.draw(g);
@@ -102,7 +103,7 @@ public class WorldPanel extends JPanel implements KeyListener, MouseInputListene
             infoPanel.setFocusable(cmdMode);
             cmdPanel.setVisible(cmdMode);
             cmdPanel.setFocusable(cmdMode);
-            world.getViewport().antialiasing = cmdMode;
+
             this.requestFocusInWindow();
             this.repaint();
         }else if (e.getButton()==MouseEvent.BUTTON3){ //detect selected object

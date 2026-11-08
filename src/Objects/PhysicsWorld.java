@@ -3,6 +3,9 @@ import Objects.Forces.*;
 
 import Objects.Physical.*;
 import Objects.Physical.Polygon;
+import Objects.tracer.CubicCurveTracer;
+import Objects.tracer.Tracer;
+import Objects.tracer.TracerAttributeManager;
 import Solver.Solver;
 import Vector.Vec2;
 
@@ -27,6 +30,11 @@ public class PhysicsWorld implements World{
     private boolean tracking = false;
     private Physical tracked = null;
     private Solver solver = null;
+    private Tracer tracer = new CubicCurveTracer();
+    private TracerAttributeManager tracerAttributeManager = new TracerAttributeManager();
+
+    private boolean drawTracer = true;
+    private boolean drawObjs = true;
 
     int screenX =0, screenY =0;
     @Override
@@ -139,6 +147,7 @@ public class PhysicsWorld implements World{
     public void update(){
         if (solver != null) {
             double stepScale = (1.0 / FPS);
+            tracerAttributeManager.counter++;
             for (Physical obj : objects) {
 
                 //ACCELERATION
@@ -153,6 +162,8 @@ public class PhysicsWorld implements World{
                     obj.applyRotate(stepScale);
                     //MOVE
                     obj.origin = (obj.origin.add(obj.vel.mul(stepScale)));
+                    tracerAttributeManager.updateTracerPoints(obj);
+
 
                 } else {
                     obj.vel = new Vec2(0, 0);
@@ -171,16 +182,32 @@ public class PhysicsWorld implements World{
         if (tracking){
             viewport.origin = tracked.origin;
         }
-            //draw objs
-            for (Physical obj : objects){
+        for (Force force : forces){
+            force.draw(g, viewport, attributes);
+        }
+
+        //draw objs
+        if (drawObjs) {
+            for (Physical obj : objects) {
                 obj.draw(g, viewport);
             }
+        }
+        if(drawTracer) {
+            for (Physical obj : objects) {
+                tracer.draw((Graphics2D) g, viewport, TracerAttributeManager.getPoints(obj), obj.colorIdx);
+            }
+        }
     }
 
 
     public void command(String command) {
         System.out.println("> " + command);
         try {
+            if (command.toLowerCase().startsWith("toggle objects")) {
+                drawObjs = !drawObjs;
+            } else if (command.toLowerCase().startsWith("toggle tracers")) {
+                drawTracer = !drawTracer;
+            } else
             if (command.toLowerCase().startsWith("vp_")) {
                 if (command.toLowerCase().startsWith("zoom", 3)) {
                     if (command.length() > 8) {
