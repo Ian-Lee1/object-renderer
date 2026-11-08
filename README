@@ -1,0 +1,36 @@
+CONTROLS:
+  Left/Middle click to drag the screen.
+  Scroll to zoom in and out.
+  Left click or hit ` to pause to toggle between simulation and command mode.
+  Right click to select an object to see its keyvalues and attributes on the right.
+
+COMMANDS:
+  Enter commands into the BOTTOM text field to control the simulation.
+    COMMAND LIST:
+                                VIEWPORT - vp_
+                                    vp_reset | resets zoom and origin based on width and height
+                                    vp_colors [clear/add/random] [null/[R] [G] [B]/[amt] | clears colors, add specific color, or generate amt random colors.
+                                    vp_origin [double],[double] | sets the viewpoint's origin.
+                                    vp_zoom [double]| set the viewport's zoom level. zoom describes units visible on the y-axis.
+                                SIMULATION - sm_
+                                    sm_step [Optional int] | take 1 or more steps in the simulation
+                                    sm_reset | fully resets the simulation
+                                    sm_attributes [clear/[attribute]] [null/[double]] | clears all attributes, or add/change the specified attribute.
+                                        features such as attractors or drag depend on simulations attributes to function. Check provided scripts or implementation to see required attributes.
+                                ENTITIES - ent_
+                                    ent_create [entity] [keyvalues] | create an entity with the given keyvalues
+                                    ent_remove [i/null] [int/has double] | rmeoves an entity based on its index or hash.
+                                    ent_track [hash double/null] | tracks the entity with the matching hash, or disables the track.
+                                    ent_clone [hash double] [double,double]/[null] | clone the object matching the hash to the given location, or at the mouse.
+                                EXECUTE FILE - exec
+                                    exec [filePath] | execute each line in a file in script/ as a command in the command field. Beware of infinite loops if exec calls are nested.
+    script/config is executed automatically on launch.
+KEYVALUES:
+  Enter a key, then a value, into the bottom right text field to change the selected object's keyvalues. (e.g. origin 0,0 size 1 length 2)
+     OBJ ATTRUBUTES
+        to change an object's attributes, input "att" before the attribute to add or change. (e.g. att t_l 5) Note that only one attribute can be changed at a time.
+        Tracer attributes  
+              Currently, tracers are hardcoded to have a ~10% of being applied to pills. (change inside Pill's constructor.) You can use attributes "t_l [number]" to indicate the number of points tracers should store and "t_f [number]" to indicate how many simulation steps to take before saving a new point. 
+      SHORTCUTS:
+      enter kill in the keyvalue textbox to remove the selected object.
+      enter tracer in the keyvalue textbox to enable tracers for the selected object.

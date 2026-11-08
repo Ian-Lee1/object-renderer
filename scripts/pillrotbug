@@ -1,0 +1,10 @@
+sm_reset
+sm_bounds w 5
+sm_bounds h 5
+sm_bounds_regen
+sm_attribute bouncyness 0.9
+sm_attribute substep 40
+vp_reset
+vp_colors random 6
+
+ent_create phys_pill origin 2.5,2 vel 2,0 ang 80 size 0.1 length 1 mass 1 movable 1 colorIdx 4 angVel 6

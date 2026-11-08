@@ -1,0 +1,8 @@
+sm_reset
+vp_origin 10,10
+vp_zoom 21
+
+ent_create phys_pill origin 0,0 length 5 size 0.1 ang 45
+ent_create phys_pill origin 20,0 length 5 size 0.1 ang 135
+ent_create phys_pill origin 20,20 length 5 size 0.1 ang 225
+ent_create phys_pill origin 0,20 length 5 size 0.1 ang -45
