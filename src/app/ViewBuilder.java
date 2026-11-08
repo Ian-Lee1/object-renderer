@@ -3,7 +3,6 @@ package app;
 import Constants.Constants;
 import Objects.PhysicsWorld;
 import Panels.CmdPanel;
-import Panels.CurveTestPanel;
 import Panels.InfoPanel;
 import Panels.WorldPanel;
 import Objects.TestWorld;
@@ -53,10 +52,6 @@ public class ViewBuilder {
         return this;
     }
 
-    public ViewBuilder addCurveTest(){
-        mainPanel.add(new CurveTestPanel());
-        return this;
-    }
     public JFrame build() {
         final JFrame application = new JFrame("View");
         application.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
