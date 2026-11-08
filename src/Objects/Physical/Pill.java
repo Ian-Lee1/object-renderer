@@ -19,7 +19,7 @@ public class Pill extends Physical{
         this.length = length;
         this.colorIdx = ind;
         this.vel = new Vec2(0, 0);
-        this.acc = new Vec2(0, 0);
+        this.force = new Vec2(0, 0);
         movable = false;
         attributes = new HashMap<>();
     }
@@ -32,12 +32,12 @@ public class Pill extends Physical{
         this.length = 0;
         this.colorIdx = 0;
         this.vel = new Vec2(0, 0);
-        this.acc = new Vec2(0, 0);
+        this.force = new Vec2(0, 0);
         attributes = new HashMap<>();
         changeFromString(cmdParameters);
         if (Math.random()<0.1) {
-            attributes.put("t_l", 40.0);
-            attributes.put("t_f", 10.0);
+            attributes.put("t_l", 30.0);
+            attributes.put("t_f", 15.0);
         }
     }
 
@@ -47,7 +47,7 @@ public class Pill extends Physical{
         builder.append("PHYS_: ").append("pill").append(" | ")
                 .append("ORIGIN: ").append(origin).append(" | ")
                 .append("VEL: ").append(vel).append(" | ")
-                .append("ACC: ").append(acc).append(" | ")
+                .append("ACC: ").append(force).append(" | ")
                 .append("ANG: ").append(ang).append(" | ")
                 .append("ANGVEL: ").append(angVel).append(" | ")
                 .append("MASS: ").append(1/inverseMass).append(" | ")

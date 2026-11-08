@@ -10,11 +10,12 @@ import java.util.HashMap;
 
 public class GlobalGravity extends Force {
     @Override
-    public void applyForces(Physical obj, ArrayList<Physical> objects, HashMap<String, Double> attributes) {
-        if (attributes.containsKey("ggravity")) {
-                obj.acc = obj.acc.add(new Vec2(0, attributes.get("ggravity")));
+    public void applyForces(Physical obj, ArrayList<Physical> objects, HashMap<String, Double> attributes, double stepScale) {
+        if (attributes.containsKey("gravity")) {
+                obj.force = obj.force.add(new Vec2(0, -attributes.get("gravity")).mul(1/obj.inverseMass));
         }
     }
+
 
     @Override
     public void draw(Graphics g, Viewport vp, HashMap<String, Double> attributes) {

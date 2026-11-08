@@ -14,7 +14,7 @@ public class Polygon extends Physical{
         this.vertices = verticies;
         this.colorIdx = ind;
         this.vel = new Vec2(0, 0);
-        this.acc = new Vec2(0, 0);
+        this.force = new Vec2(0, 0);
     }
 
     public Polygon(String cmdParameters){

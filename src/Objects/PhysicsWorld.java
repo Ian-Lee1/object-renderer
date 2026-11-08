@@ -33,9 +33,6 @@ public class PhysicsWorld implements World{
     private Tracer tracer = new CubicCurveTracer();
     private TracerAttributeManager tracerAttributeManager = new TracerAttributeManager();
 
-    private boolean drawTracer = true;
-    private boolean drawObjs = true;
-
     int screenX =0, screenY =0;
     @Override
     public HashMap getAttributes(){
@@ -59,6 +56,8 @@ public class PhysicsWorld implements World{
         attributes.clear();
         attributes.put("width", 10.0);
         attributes.put("height", 10.0);
+        attributes.put("drawObjects", 1.0);
+        attributes.put("drawTracers", 1.0);
     }
 
     private void resetObjects() {
@@ -150,15 +149,15 @@ public class PhysicsWorld implements World{
             tracerAttributeManager.counter++;
             for (Physical obj : objects) {
 
-                //ACCELERATION
-                obj.acc = new Vec2(0, 0);
+                //FORCE
+                obj.force = new Vec2(0, 0);
                 for (Force force : forces) { //forces may change the objects' attributes, even if unmovable
-                    force.applyForces(obj, objects, attributes);
+                    force.applyForces(obj, objects, attributes, stepScale);
                 }
 
                 if (obj.movable) {
-                    //VELOCITY
-                    obj.vel = (obj.vel.add(obj.acc.mul(stepScale)));
+                    //VELOCITY //F=MA, so divide mass.
+                    obj.vel = (obj.vel.add(obj.force.mul(stepScale).mul(obj.inverseMass)));
                     obj.applyRotate(stepScale);
                     //MOVE
                     obj.origin = (obj.origin.add(obj.vel.mul(stepScale)));
@@ -187,12 +186,12 @@ public class PhysicsWorld implements World{
         }
 
         //draw objs
-        if (drawObjs) {
+        if (attributes.get("drawObjects") > 0) {
             for (Physical obj : objects) {
                 obj.draw(g, viewport);
             }
         }
-        if(drawTracer) {
+        if (attributes.get("drawTracers") > 0) {
             for (Physical obj : objects) {
                 tracer.draw((Graphics2D) g, viewport, TracerAttributeManager.getPoints(obj), obj.colorIdx);
             }
@@ -203,11 +202,6 @@ public class PhysicsWorld implements World{
     public void command(String command) {
         System.out.println("> " + command);
         try {
-            if (command.toLowerCase().startsWith("toggle objects")) {
-                drawObjs = !drawObjs;
-            } else if (command.toLowerCase().startsWith("toggle tracers")) {
-                drawTracer = !drawTracer;
-            } else
             if (command.toLowerCase().startsWith("vp_")) {
                 if (command.toLowerCase().startsWith("zoom", 3)) {
                     if (command.length() > 8) {

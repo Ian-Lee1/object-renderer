@@ -1,0 +1,2 @@
+sm_attribute gravity 100
+ent_create force_gravity

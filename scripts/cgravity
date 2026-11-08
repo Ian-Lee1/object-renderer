@@ -1,5 +1,0 @@
-sm_attribute g_center_x 0
-sm_attribute g_center_y 0
-sm_attribute cgravity 1000
-sm_attribute bouncyness 0.1
-ent_create force_pgravity

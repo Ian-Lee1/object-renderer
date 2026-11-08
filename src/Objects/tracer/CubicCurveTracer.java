@@ -13,10 +13,7 @@ public class CubicCurveTracer implements Tracer{
     @Override
     public void draw(Graphics2D g2d, Viewport vp, ArrayList<Vec2> points, int colorIdx) {
         if (points.size() > 1) {
-
-
             g2d.setColor(vp.getColor(colorIdx).darker().brighter().brighter());
-            //double scale = vp.worldToScreenScale(g2d);
             for (int i = 0; i < points.size(); i++) {
 
                 Vec2 lastLast = vp.worldToScreen(g2d, points.get(Math.clamp(i - 2, 0, points.size()-1)));
@@ -34,16 +31,12 @@ public class CubicCurveTracer implements Tracer{
                         curr.getX(), curr.getY()
                 );
 
-                float size = 1 ;//(int) Math.clamp((
-                     //   2.0 / (pow(vp.zoom, 2)/1000 + 1)
-
-              //  ), 1.0, 4.0);
+                float size = 1;
                 g2d.setStroke(new BasicStroke(size));
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2d.draw(cubicCurve);
-
+                //g2d.drawLine((int)last.getX(), (int)last.getY(), (int)curr.getX(), (int)curr.getY());
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-
             }
         }
     }

@@ -13,16 +13,15 @@ import static java.lang.Math.pow;
 
 public class Attractors extends Force {
     @Override
-    public void applyForces(Physical obj, ArrayList<Physical> objects, HashMap<String, Double> attributes) {
+    public void applyForces(Physical obj, ArrayList<Physical> objects, HashMap<String, Double> attributes, double stepScale) {
         int attractors = 0;
         if(attributes.containsKey("a_point_amt")) {
             attractors = (int)attributes.get("a_point_amt").doubleValue();
         }
 
         //ASSUME ONLY PILL IS PASSED IN.
-
         if (obj instanceof Pill){
-            Vec2 start = null, end = null;
+            Vec2 start = obj.origin, end = obj.origin;
             if(((Pill) obj).length > 0) {
                 double radians = Math.toRadians(obj.ang);
                 start = obj.origin.sub(new Vec2(
@@ -40,18 +39,29 @@ public class Attractors extends Force {
 
         for ( int i  = 1 ; i < attractors + 1; i++) {
             if (attributes.containsKey("a_" + i + "_x") && attributes.containsKey("a_" + i + "_y") && attributes.containsKey("a_" + i + "_g")) {
-                if(((Pill) obj).length > 0) {
-                    Vec2 sAcc = (new Vec2(attributes.get("a_" + i + "_x"), attributes.get("a_" + i + "_y")).sub(start));
-                    Vec2 eAcc = (new Vec2(attributes.get("a_" + i + "_x"), attributes.get("a_" + i + "_y")).sub(end));
-
-                    double torqueImpulseA = (start.sub(obj.origin).getX() * sAcc.getY()) - (start.sub(obj.origin).getY() * sAcc.getX());
-                    double torqueImpulseB = (end.sub(obj.origin).getX() * eAcc.getY()) - (end.sub(obj.origin).getY() * eAcc.getX());
-
-                    obj.angVel = obj.angVel + torqueImpulseA + torqueImpulseB;
-                }
                 Vec2 dir = (new Vec2(attributes.get("a_" + i + "_x"), attributes.get("a_" + i + "_y")).sub(obj.getCenterOfMass()));
+                if(((Pill) obj).length > 0) { //for each point on object (2 for pill), sum the torque, then add to angvel.
+                    Vec2 sDir = (new Vec2(attributes.get("a_" + i + "_x"), attributes.get("a_" + i + "_y")).sub(start));
+                    Vec2 eDir = (new Vec2(attributes.get("a_" + i + "_x"), attributes.get("a_" + i + "_y")).sub(end));
 
-                obj.acc = obj.acc.add(dir.mul(attributes.get("a_" + i + "_g") * 1 / Math.max(0.01, dir.lengthSq())));
+                    Vec2 rA = start.sub(obj.origin);
+                    Vec2 rB = end.sub(obj.origin);
+
+                    double distToSSq = sDir.lengthSq();
+                    double distToESq = eDir.lengthSq();
+
+                    sDir = sDir.toUnit();
+                    eDir = eDir.toUnit();
+
+                    //multiplying mass in since it affects drag.
+                    Vec2 sFor = sDir.mul(attributes.get("a_" + i + "_g") / Math.max(0.1, distToSSq)).mul(1/ obj.inverseMass);
+                    Vec2 eFor = eDir.mul(attributes.get("a_" + i + "_g") / Math.max(0.1, distToESq)).mul(1/ obj.inverseMass);
+
+                    double torque = rA.cross(sFor) + rB.cross(eFor);
+                    double angularAccel = torque / obj.getInertia();
+                    obj.angVel += angularAccel * stepScale;
+                }
+                obj.force = obj.force.add(dir.mul(attributes.get("a_" + i + "_g") / Math.max(0.1, dir.lengthSq())).mul(1/obj.inverseMass));
             }
         }
         }

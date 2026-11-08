@@ -1,0 +1,12 @@
+sm_reset
+sm_attribute a_point_amt 2
+sm_attribute a_1_x 0
+sm_attribute a_1_y 0
+sm_attribute a_1_g 100
+sm_attribute a_2_x 10
+sm_attribute a_2_y 10
+sm_attribute a_2_g 100
+sm_attribute drag 2
+ent_create force_drag
+ent_create force_attractor
+ent_create phys_pill size 0.1 length 2 origin 5,5 mass 1 movable 1 angvel 400

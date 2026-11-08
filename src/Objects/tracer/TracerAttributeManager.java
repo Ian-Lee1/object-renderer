@@ -28,7 +28,8 @@ public class TracerAttributeManager { //manages the tracer attributes in the giv
     }
 
     public static void updateTracerPoints(Physical obj){
-       if (obj.attributes.containsKey("t_f")) {
+       if (obj.attributes.containsKey("t_f") && obj.attributes.containsKey("t_l")) {
+           //Standard Update
            if (counter % obj.attributes.get("t_f") == 0) {
                //if storing 5 points, move from 3->4, 2->3 1->2, 0->1, origin->0
                for (int i = (int) obj.attributes.get("t_l").doubleValue() - 2; i >= 0; i--) {

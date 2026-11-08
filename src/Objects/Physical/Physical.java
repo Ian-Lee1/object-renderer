@@ -2,7 +2,6 @@ package Objects.Physical;
 
 import Objects.Viewport;
 import Vector.Vec2;
-import jdk.jshell.spi.ExecutionControl;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -13,7 +12,7 @@ public abstract class Physical {
 
     public Vec2 origin;
     public Vec2 vel;
-    public Vec2 acc;
+    public Vec2 force;
 
     public boolean movable = false;
 
