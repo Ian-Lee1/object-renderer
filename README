@@ -15,8 +15,8 @@ COMMANDS:
                                 SIMULATION - sm_
                                     sm_step [Optional int] | take 1 or more steps in the simulation
                                     sm_reset | fully resets the simulation
-                                    sm_bounds [w/h/regen] [double/double/null] | changes the width and height of the simulation, or regenerats the bounds, clearing all objects.
                                     sm_attributes [clear/[attribute]] [null/[double]] | clears all attributes, or add/change the specified attribute.
+                                        features such as attractors or drag depend on simulations attributes to function. Check provided scripts or implementation to see required attributes.
                                 ENTITIES - ent_
                                     ent_create [entity] [keyvalues] | create an entity with the given keyvalues
                                     ent_remove [i/null] [int/has double] | rmeoves an entity based on its index or hash.
