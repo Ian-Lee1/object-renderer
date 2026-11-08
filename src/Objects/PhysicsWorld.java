@@ -147,6 +147,11 @@ public class PhysicsWorld implements World{
         if (solver != null) {
             double stepScale = (1.0 / FPS);
             tracerAttributeManager.counter++;
+            for (Force force : forces) { //forces may change the objects' attributes, even if unmovable
+                if (force instanceof Attractors){
+                    ((Attractors) force).specialProcess(attributes, stepScale);
+                }
+            }
             for (Physical obj : objects) {
 
                 //FORCE

@@ -35,7 +35,7 @@ public class Pill extends Physical{
         this.force = new Vec2(0, 0);
         attributes = new HashMap<>();
         changeFromString(cmdParameters);
-        if (Math.random()<0.1) {
+        if (Math.random()<0.00) {
             attributes.put("t_l", 30.0);
             attributes.put("t_f", 15.0);
         }

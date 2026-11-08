@@ -67,6 +67,38 @@ public class Attractors extends Force {
         }
     }
 
+    public void specialProcess(HashMap<String, Double> attributes, double stepScale){ //move attractors around attractors.
+        int attractors = 0;
+        if(attributes.containsKey("a_point_amt")) {
+            attractors = (int)attributes.get("a_point_amt").doubleValue();
+        }
+
+        for ( int i  = 1 ; i < attractors + 1; i++) {
+            if (attributes.containsKey("a_" + i + "_movable") && attributes.get("a_" + i + "_movable") > 0){
+                if (!attributes.containsKey("a_" + i + "_velX") || !attributes.containsKey("a_" + i + "_velY")){
+                    attributes.put("a_" + i + "_velX", 0.0);
+                    attributes.put("a_" + i + "_velY", 0.0);
+                }
+                Vec2 acc = new Vec2(0,0);
+                for ( int j  = 1 ; j < attractors + 1; j++) {
+                    if (i != j) {
+                        Vec2 dir = new Vec2( attributes.get("a_" + j + "_x") - attributes.get("a_" + i + "_x"),
+                                attributes.get("a_" + j + "_y") - attributes.get("a_" + i + "_y"));
+                        acc = acc.add(dir.toUnit().mul(attributes.get("a_" + j + "_g")/ Math.max(3, dir.lengthSq())));
+                    }
+                }
+                Vec2 toOrigin = new Vec2(-attributes.get("a_" + i + "_x"), -attributes.get("a_" + i + "_y"));
+                acc = acc.add(toOrigin.mul(toOrigin.length()*0.0001));
+                attributes.put("a_" + i + "_velX", attributes.get("a_" + i + "_velX")+acc.getX() * stepScale);
+                attributes.put("a_" + i + "_velY", attributes.get("a_" + i + "_velY")+acc.getY() * stepScale);
+
+                attributes.put("a_" + i + "_x", attributes.get("a_" + i + "_x") + attributes.get("a_" + i + "_velX") * stepScale);
+                attributes.put("a_" + i + "_y", attributes.get("a_" + i + "_y") + attributes.get("a_" + i + "_velY") * stepScale);
+            }
+        }
+        }
+
+
     @Override
     public void draw(Graphics g, Viewport vp, HashMap<String, Double> attributes) {
         Graphics2D g2 = (Graphics2D)g;

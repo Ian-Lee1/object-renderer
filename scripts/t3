@@ -1,0 +1,44 @@
+sm_reset
+vp_reset
+vp_origin 0,0
+vp_zoom 150
+sm_attribute a_point_amt 3
+sm_attribute a_1_x 0
+sm_attribute a_1_y 0
+sm_attribute a_1_g 1200
+sm_attribute a_2_x 0
+sm_attribute a_2_y 30
+sm_attribute a_2_g 1000
+sm_attribute a_3_x 0
+sm_attribute a_3_y -30
+sm_attribute a_3_g 900
+
+//sm_attribute a_4_x 60
+//sm_attribute a_4_y 0
+//sm_attribute a_4_g -400
+
+//sm_attribute a_5_x -60
+//sm_attribute a_5_y 0
+//sm_attribute a_5_g -400
+
+sm_attribute a_1_movable 0
+sm_attribute a_2_movable 1
+sm_attribute a_3_movable 1
+//sm_attribute a_4_movable 1
+//sm_attribute a_5_movable 1
+
+sm_attribute a_2_velX 5
+sm_attribute a_2_velY 0
+sm_attribute a_3_velX -5
+sm_attribute a_3_velY 0
+//sm_attribute a_4_velX -1
+//sm_attribute a_4_velY -1
+//sm_attribute a_5_velX 2
+//sm_attribute a_5_velY 2
+
+sm_attribute bouncyness 0.0
+
+ent_create force_attractor
+vp_colors random 10
+exec randomPills
+

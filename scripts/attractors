@@ -2,7 +2,7 @@ sm_reset
 sm_attribute a_point_amt 10
 sm_attribute a_1_x 0
 sm_attribute a_1_y 0
-sm_attribute a_1_g 610
+sm_attribute a_1_g 1010
 
 sm_attribute a_8_x 10
 sm_attribute a_8_y 5
@@ -18,13 +18,13 @@ sm_attribute a_10_g -150
 
 sm_attribute a_2_x 60
 sm_attribute a_2_y 0
-sm_attribute a_2_g 650
+sm_attribute a_2_g 850
 sm_attribute a_3_x 30
 sm_attribute a_3_y 40
-sm_attribute a_3_g 400
+sm_attribute a_3_g 900
 sm_attribute a_4_x 30
 sm_attribute a_4_y 15
-sm_attribute a_4_g 610
+sm_attribute a_4_g 310
 sm_attribute a_5_x 30
 sm_attribute a_5_y 10
 sm_attribute a_5_g -210
