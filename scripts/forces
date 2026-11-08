@@ -1,0 +1,5 @@
+sm_attribute ggravity -30
+sm_attribute drag 0.01
+sm_attribute bouncyness 0.7
+ent_create force_ggravity
+ent_create force_drag

@@ -1,4 +1,424 @@
 package Objects;
+import Objects.Forces.*;
 
-public class PhysicsWorld {
+import Objects.Physical.*;
+import Objects.Physical.Polygon;
+import Objects.tracer.CubicCurveTracer;
+import Objects.tracer.Tracer;
+import Objects.tracer.TracerAttributeManager;
+import Solver.Solver;
+import Vector.Vec2;
+
+import java.awt.*;
+import java.io.IOException;
+import java.util.*;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
+
+import Solver.Contact;
+
+import static Constants.Constants.*;
+
+public class PhysicsWorld implements World{
+    private ArrayList<Physical> objects = new ArrayList<>();
+    private ArrayList<Force> forces = new ArrayList<>();
+
+    private Viewport viewport;
+    private HashMap<String, Double> attributes = new HashMap<>();
+    private boolean tracking = false;
+    private Physical tracked = null;
+    private Solver solver = null;
+    private Tracer tracer = new CubicCurveTracer();
+    private TracerAttributeManager tracerAttributeManager = new TracerAttributeManager();
+
+    private boolean drawTracer = true;
+    private boolean drawObjs = true;
+
+    int screenX =0, screenY =0;
+    @Override
+    public HashMap getAttributes(){
+        return attributes;
+    }
+    public PhysicsWorld(){
+        viewport = new Viewport();
+        viewport.colors.add(Color.RED);
+        viewport.origin = new Vec2(5, 5);
+        viewport.zoom = 12;
+        resetAttributes();
+        resetObjects();
+    }
+
+    private void resetViewport(){
+        viewport.zoom = Math.max(attributes.get("width"),attributes.get("height"))*1.1;
+        viewport.origin = new Vec2(attributes.get("width")/2,attributes.get("height")/2);
+    }
+
+    private void resetAttributes(){
+        attributes.clear();
+        attributes.put("width", 10.0);
+        attributes.put("height", 10.0);
+    }
+
+    private void resetObjects() {
+        objects.clear();
+        forces.clear();
+    }
+
+    private Polygon randomPolygon(int cs) {
+        Random random = new Random();
+
+        double width = attributes.get("width");
+        double height = attributes.get("height");
+
+        Vec2 origin = new Vec2(
+                Math.random() * width,
+                Math.random() * height
+        );
+
+        double angle = Math.random() * 360.0;
+
+        int vertexCount = 3 + random.nextInt(3); // 2-6 vertices
+
+        // Overall size of the polygon
+        double radius = Math.random() * 0.5;
+
+        Vec2[] vertices = new Vec2[vertexCount];
+
+        for (int i = 0; i < vertexCount; i++) {
+            double theta = (Math.PI * 2 * i) / vertexCount;
+
+            // Vary radius a little for irregular shapes
+            double r = radius * (0.5 + random.nextDouble() * 0.5);
+
+            vertices[i] = new Vec2(
+                    Math.cos(theta) * r,
+                    Math.sin(theta) * r
+            );
+        }
+
+        return new Polygon(origin, angle, vertices, (int)(Math.random()*cs-1)+1);
+    }
+
+    private void addBounds() {
+        // in NESW order
+        // North
+        objects.add(new Pill(new Vec2(0, attributes.get("height")), 0, 0.01, attributes.get("width"), 0 ));
+        // East
+        objects.add(new Pill(new Vec2( attributes.get("width"), 0), 90, 0.01, attributes.get("height"), 0 ));
+        // South
+        objects.add(new Pill(new Vec2(0, 0), 0, 0.01, attributes.get("width"), 0 ));
+        // West
+        objects.add(new Pill(new Vec2( 0, 0), 90, 0.01, attributes.get("height"), 0 ));
+
+
+    }
+
+    public Physical detectAt(int vpX, int vpY, int x, int y){
+        //create fake pill location, then use solver to find a match.
+        Vec2 location = viewport.screenToWorld(vpX, vpY, x, y);
+        double scale = viewport.zoom/vpY;
+        Pill pillChecker = new Pill(location, 0, scale*3, 0, 0);
+        for (Physical obj : objects){
+            Contact contact = solver.collide(pillChecker, obj);
+            if (contact.penetration >= 0){
+                return obj;
+            }
+        }
+        //if solver does not find a match or throws error, use obj's centre of mass and calculate distance.
+        return null;
+    }
+
+    public void setSolver(Solver solver){
+        this.solver = solver;
+    }
+
+    @Override
+    public int getIndex(Physical obj) {
+        return objects.indexOf(obj);
+    }
+
+    @Override
+    public Viewport getViewport() {
+        return viewport;
+    }
+
+    public void update(){
+        if (solver != null) {
+            double stepScale = (1.0 / FPS);
+            tracerAttributeManager.counter++;
+            for (Physical obj : objects) {
+
+                //ACCELERATION
+                obj.acc = new Vec2(0, 0);
+                for (Force force : forces) { //forces may change the objects' attributes, even if unmovable
+                    force.applyForces(obj, objects, attributes);
+                }
+
+                if (obj.movable) {
+                    //VELOCITY
+                    obj.vel = (obj.vel.add(obj.acc.mul(stepScale)));
+                    obj.applyRotate(stepScale);
+                    //MOVE
+                    obj.origin = (obj.origin.add(obj.vel.mul(stepScale)));
+                    tracerAttributeManager.updateTracerPoints(obj);
+
+
+                } else {
+                    obj.vel = new Vec2(0, 0);
+                    obj.angVel = 0;
+                }
+
+            }
+            solver.resolve(objects, stepScale, attributes);
+        }
+    }
+
+    public void draw(Graphics g){
+
+        screenX = g.getClipBounds().width;
+        screenY = g.getClipBounds().height;
+        if (tracking){
+            viewport.origin = tracked.origin;
+        }
+        for (Force force : forces){
+            force.draw(g, viewport, attributes);
+        }
+
+        //draw objs
+        if (drawObjs) {
+            for (Physical obj : objects) {
+                obj.draw(g, viewport);
+            }
+        }
+        if(drawTracer) {
+            for (Physical obj : objects) {
+                tracer.draw((Graphics2D) g, viewport, TracerAttributeManager.getPoints(obj), obj.colorIdx);
+            }
+        }
+    }
+
+
+    public void command(String command) {
+        System.out.println("> " + command);
+        try {
+            if (command.toLowerCase().startsWith("toggle objects")) {
+                drawObjs = !drawObjs;
+            } else if (command.toLowerCase().startsWith("toggle tracers")) {
+                drawTracer = !drawTracer;
+            } else
+            if (command.toLowerCase().startsWith("vp_")) {
+                if (command.toLowerCase().startsWith("zoom", 3)) {
+                    if (command.length() > 8) {
+                        viewport.zoom = Double.parseDouble(command.substring(8));
+                    }else {
+                        System.out.println("Viewport Zoom: " + viewport.zoom);
+                    }
+                }
+                else if (command.toLowerCase().startsWith("origin", 3)) {
+                    if (command.length() > 10) {
+                    viewport.origin = Vec2.parseVec2(command.substring(10));
+                    }else {
+                        System.out.println("Viewport Origin: " + viewport.origin);
+                    }
+                }
+                else if (command.toLowerCase().startsWith("reset", 3)) {
+                    System.out.println("Viewport reset.");
+                    resetViewport();
+                }
+                else if (command.toLowerCase().startsWith("colors", 3)) {
+                    if (command.toLowerCase().startsWith("clear", 10)){
+                        System.out.println("Cleared viewport colors");
+                        viewport.colors.clear();
+                        viewport.colors.add(Color.RED);
+                    }
+                    else if (command.toLowerCase().startsWith("add", 10)){
+                        String section = command.substring(14);
+                        String[] parts = section.trim().split(" ");
+                        if (parts.length < 3){
+                            System.out.println("RGB components not detected properly. Format colors as r g b.");
+                        }else {
+                            viewport.colors.add(new Color(Integer.parseInt(parts[0]),Integer.parseInt(parts[1]), Integer.parseInt(parts[2])));
+                            System.out.println("Add new color.");
+                        }
+                    }
+                    else if (command.toLowerCase().startsWith("random", 10)){
+                        int c = Integer.parseInt(command.substring(17));
+                        for (int i = 0 ; i < c; i++){
+                            viewport.colors.add(Color.getHSBColor((float)Math.random(), (float)(Math.random()*0.3 + 0.7), (float)(Math.random()*0.3 + 0.7)));
+                        }
+                        System.out.println("Added "+c+ " colors.");
+                    }
+                }
+            }
+            else if (command.toLowerCase().startsWith("sm_reset")) {
+                resetAttributes();
+                resetObjects();
+                System.out.println("Cleared all objects.");
+            }
+            else if (command.toLowerCase().startsWith("sm_step")) {
+                if (command.length() > 8){
+                    System.out.println("Steping " + command.substring(8) + " times...");
+                    for(int i = 0 ; i < Integer.parseInt(command.substring(8)); i++){
+                        update();
+                    }
+                }else {
+                    update();
+                    System.out.println("Stepped once");
+                }
+            }
+            else if (command.toLowerCase().startsWith("sm_attribute")) {
+                if (command.toLowerCase().startsWith("clear", 13)){
+                    resetAttributes();
+                    System.out.println("Attributes cleared.");
+                }
+                else if (command.length() > 14){
+                    String section = command.substring(13);
+                    int space = section.indexOf(' ');
+                    if (space <= 0 || space == section.length() - 1){
+                        System.out.println("Invalid formatting.");
+                    }
+
+                    attributes.put(section.substring(0, space), Double.parseDouble(section.substring(space)));
+                    System.out.println("Added/Changed " + section.substring(0, space) + ": " + section.substring(space));
+                }
+            }
+            else if (command.toLowerCase().startsWith("sm_bounds_regen")) {
+                    resetObjects();
+                    addBounds();
+                System.out.println("Bounds regenerated.");
+            }
+            else if (command.toLowerCase().startsWith("sm_bounds")) {
+                if(command.length() > 12) {
+                    double number = Double.parseDouble(command.substring(12));
+                    System.out.println("Changed bound " + command.charAt(10)+ ": " + number);
+                    switch (command.charAt(10)) {
+                        case 'w':
+                            attributes.put("width", number);
+                            break;
+                        case 'h':
+                            attributes.put("height", number);
+                            break;
+
+                        default:
+                            throw new IllegalArgumentException();
+                    }
+                }
+                else{ System.out.println("Width: " + attributes.get("width") + " | Height: " + attributes.get("height"));}
+            }
+            else if (command.toLowerCase().startsWith("ent_create ")) {
+                System.out.println("Creating object...");
+                try {
+                    if (command.startsWith("force_", 11)){
+                        forces.add(Force.parseForce(command.substring(17)));
+                    } else if (command.startsWith("phys_", 11)){
+                        objects.add(Physical.parsePhysical(command.substring(16)));
+                    }
+                    System.out.println("Object created successfully.");
+                } catch (IllegalArgumentException e){
+                    System.out.println("Creation failure: " + e.getMessage());
+                }
+            }
+            else if (command.toLowerCase().startsWith("ent_remove ")) {
+                System.out.println("Removing object...");
+                int index = -1;
+                try {
+                if (command.charAt(11) == 'i'){ //by index
+                    index = Integer.parseInt(command.substring(13));
+                } else { //by hash
+                    double hash = Double.parseDouble(command.substring(11));
+                    for (Physical obj : objects) {
+                        if (obj.attributes.get("hash") == hash) {
+                            index = objects.indexOf(obj);
+                            break;
+                        }
+                    }
+                }
+                objects.remove(index);
+                System.out.println("Object remove successfully.");
+
+                } catch (Exception e){
+                    System.out.println("Removal failure: " + e.getMessage());
+                }
+            }
+            else if (command.toLowerCase().startsWith("ent_track")){
+                if (command.length() > 10){
+                    double hash = Double.parseDouble(command.substring(10));
+                    for (Physical obj : objects){
+                        if (obj.attributes.get("hash") == hash) {
+                            tracking = true;
+                            tracked = obj;
+                            break;
+                        }
+                    }
+                }else{
+                    tracking = false;
+                    tracked = null;
+                }
+            }
+            else if (command.toLowerCase().startsWith("ent_clone ")){
+                int section = command.lastIndexOf(' ');
+                double hash;
+                String loca = " ";
+                if (section > 10) {
+                    hash = Double.parseDouble(command.substring(10, section));
+                    loca = command.substring(section);
+                }
+                else {
+                    hash = Double.parseDouble(command.substring(10));
+                    loca += viewport.screenToWorld(screenX, screenY, attributes.get("INTL_mouseX"), screenY-attributes.get("INTL_mouseY")).toString().replace("(", "").replace(")", "").replace(" ", "");
+                }
+               Physical newPhys = null;
+                for (Physical obj : objects) {
+                    if (obj.attributes.get("hash") != null) {
+                        if (obj.attributes.get("hash") == hash) {
+                            newPhys = obj.clone();
+                            break;
+                        }
+                    }
+                }
+                newPhys.changeFromString(" origin"+ loca);
+                objects.add(newPhys);
+
+
+            }
+            else if (command.toLowerCase().startsWith("exec ")){
+                String filePath = command.substring(5);
+                try (Stream<String> lines = Files.lines(Paths.get("scripts/" + filePath))) {
+                    lines.forEach(this::command);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            else if (command.toLowerCase().startsWith("help")) {
+                System.out.println(
+                        """
+                                VIEWPORT - vp_
+                                    vp_reset | resets zoom and origin based on width and height
+                                    vp_colors [clear/add/random] [null/[R] [G] [B]/[amt] | clears colors, add specific color, or generate amt random colors.
+                                    vp_origin [double],[double] | sets the viewpoint's origin.
+                                    vp_zoom [double]| set the viewport's zoom level. zoom describes units visible on the y-axis.
+                                SIMULATION - sm_
+                                    sm_step [Optional int] | take 1 or more steps in the simulation
+                                    sm_reset | fully resets the simulation
+                                    sm_bounds [w/h/regen] [double/double/null] | changes the width and height of the simulation, or regenerats the bounds, clearing all objects.
+                                    sm_attributes [clear/[attribute]] [null/[double]] | clears all attributes, or add/change the specified attribute.
+                                ENTITIES - ent_
+                                    ent_create [entity] [keyvalues] | create an entity with the given keyvalues
+                                    ent_remove [int/str] | rmeoves an entity based on its index or targetname.
+                                    ent_find [hash double] | selects the entity with the matching hash and moves the camera to it.
+                                    ent_track [hash double/null] | tracks the entity with the matching hash, or disables the track.
+                                    ent_clone [hash double] [double,double] | clone the object matching the hash to the new location.
+                                EXECUTE FILE - exec
+                                    exec [filePath] | execute each line in a file in script/ as a command in the command field. Beware of infinite loops if exec calls are nested.
+                                """);
+            } else {
+                System.out.println("Unknown command. Input \"help\" for command information.");
+            }
+        } catch(IllegalArgumentException _){
+            System.out.println("Bad command. Input \"help\" for command information. \n");
+        }
+
+    }
 }

@@ -1,0 +1,4 @@
+vp_colors random 6
+exec randomPills
+sm_attribute bouncyness 0.2
+exec cgravity
