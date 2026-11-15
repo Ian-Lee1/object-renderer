@@ -1,3 +1,4 @@
-exec t3
-attractors
+exec particleLife
+//t3
+//attractors
 //_torque_test

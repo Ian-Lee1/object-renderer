@@ -21,6 +21,8 @@ public abstract class Force {
             return new Drag();
         }else if (parameters.toLowerCase().startsWith("attractor")) {
             return new Attractors();
+        }else if (parameters.toLowerCase().startsWith("particlelife")) {
+            return new ParticleLife();
         }
         throw new IllegalArgumentException("Cannot create Unsupported type " + parameters.substring(0, parameters.indexOf(' ')));
     }

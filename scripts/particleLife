@@ -1,0 +1,10 @@
+sm_reset
+vp_colors random 10
+exec randomPills
+ent_create force_particlelife
+sm_attribute pl_typeAmt 5
+sm_attribute pl_distAmt 3
+sm_attribute pl_maxDist 10
+sm_attribute pl_command 1
+sm_step 1
+sm_attribute pl_command 2

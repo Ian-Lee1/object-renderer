@@ -275,6 +275,18 @@ public class Pill extends Physical{
 
         g2.drawLine(x1, y1, x2, y2);
 
+        //Particle Life Colors
+        if(attributes.containsKey("type")){
+            g.setColor(viewport.getColor((int)attributes.get("type").doubleValue()));
+            thickness *= 0.8 ;
+            g2.fillOval(x1 - (int)thickness/2, y1 - (int)thickness/2, (int)thickness, (int)thickness);
+            if (length > 0){
+                g.setColor(viewport.getColor((int)attributes.get("type").doubleValue() + 1));
+                g2.fillOval(x2 - (int)thickness/2, y2 - (int)thickness/2, (int)thickness, (int)thickness);
+
+            }
+        }
+
         g2.setStroke(stroke);
     }
 
