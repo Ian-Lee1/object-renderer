@@ -25,7 +25,7 @@ public class ParticleLife extends Force{
                         NL  0.4 0.4+1   0.2-1 0.0        //if they are the same, more likely to start attracting.
 
                          */
-    //TODO add command to modify probs?
+
     double[][] transitionProbs = {
             {0.4, 0.1, 0.3, 0.2},
             {0.3, 0.0, 0.3, 0.4},
@@ -38,6 +38,7 @@ public class ParticleLife extends Force{
             {0.3, 0.3, 0.2, 0.2},
             {0.4, 0.3, 0.3, 0.0},
     };
+
 
     //type i to type j, point, dist/scale.
 
@@ -107,7 +108,7 @@ public class ParticleLife extends Force{
             for (Physical obj : objects) {
                 obj.attributes.put("type", floor(Math.random() * types));
                 if(obj instanceof Pill) {
-                    obj.attributes.put("type", floor((((Pill) obj).size * 2 % types)));
+                    obj.attributes.put("type", floor((((Pill) obj).size * 4 % types)));
                 }
                 obj.colorIdx = (int)obj.attributes.get("type").doubleValue();
             }
@@ -245,7 +246,7 @@ public class ParticleLife extends Force{
                         //DRAWING FORCE LINES:
                             //FOR EACH OBJECT PAIR, IF abs FORCE IS ABOVE THREASHOLD (near attMax?) draw line between them. oclor based on sign.
                         //fade based on strength and distence.
-                        if (g!=null && vp!=null && attributes.containsKey("pl_draw") && attributes.get("pl_draw") > 0) {
+                        if (g!=null && vp!=null && attributes.containsKey("pl_opacity") && attributes.get("pl_opacity") > 0) {
                             Graphics2D g2 = (Graphics2D) g;
 
                             double att1 = getAttraction((int)obj.attributes.get("type").doubleValue(), (int)obj2.attributes.get("type").doubleValue(), obj.origin.sub(obj2.origin).lengthSq());
@@ -265,7 +266,7 @@ public class ParticleLife extends Force{
 
                                 int r = (int)remap(-abs(att1) -abs(att2), 0, 0, 255, att1+att2);
                                 int b = 255-(int)remap(0, abs(att1) + abs(att2), 0, 255, att1+att2);
-                                int a = (int)remap(0.3, 1, 0, 150, score);
+                                int a = (int)remap(0.3, 1, 0, attributes.get("pl_opacity"), score);
                                 g2.setStroke(new BasicStroke(
                                         (int) (((Pill) obj).size/3 * vp.worldToScreenScale(g) * score - 0.2),
                                         BasicStroke.CAP_ROUND,

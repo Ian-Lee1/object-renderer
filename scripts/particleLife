@@ -1,8 +1,7 @@
 sm_reset
 vp_colors clear
 vp_reset
-vp_colors random 10
-vp_colors add 0 0 0
+vp_colors random 30
 exec randomPills
 sm_step 10
 exec randomPills
@@ -25,10 +24,12 @@ sm_attribute bouncyness 1
 
 sm_attribute pl_typeAmt 12
 sm_attribute pl_distAmt 12
-sm_attribute pl_maxDist 100
-sm_attribute pl_attMax 1000
-sm_attribute pl_attMin 500
+sm_attribute pl_maxDist 150
+sm_attribute pl_attMax 1500
+sm_attribute pl_attMin 700
 sm_attribute pl_command 1
-sm_step 1
+sm_attribute pl_opacity 60
+sm_step 300
+sm_step 300
 
 //exec particleLife
