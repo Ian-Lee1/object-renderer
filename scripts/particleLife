@@ -1,10 +1,34 @@
 sm_reset
+vp_colors clear
+vp_reset
 vp_colors random 10
+vp_colors add 0 0 0
 exec randomPills
+sm_step 10
+exec randomPills
+sm_step 10
+exec randomPills
+sm_step 10
+//exec randomPills
+
+//ent_create phys_pill size 0.1 movable 1 mass 1 origin 0,0
+//ent_create phys_pill size 0.1 movable 1 mass 1 origin 2,0
+//ent_create phys_pill size 0.1 movable 1 mass 1 origin 0,2
+//ent_create phys_pill size 0.1 movable 1 mass 1 origin 2,2
+vp_origin 100,100
+vp_zoom 200
+
 ent_create force_particlelife
-sm_attribute pl_typeAmt 5
-sm_attribute pl_distAmt 3
-sm_attribute pl_maxDist 10
+ent_create force_drag
+sm_attribute drag 0.5
+sm_attribute bouncyness 1
+
+sm_attribute pl_typeAmt 12
+sm_attribute pl_distAmt 12
+sm_attribute pl_maxDist 100
+sm_attribute pl_attMax 1000
+sm_attribute pl_attMin 500
 sm_attribute pl_command 1
 sm_step 1
-sm_attribute pl_command 2
+
+//exec particleLife

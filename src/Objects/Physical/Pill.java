@@ -6,6 +6,7 @@ import Vector.Vec2;
 import java.awt.*;
 import java.util.HashMap;
 
+import static java.lang.Math.max;
 import static java.lang.Math.pow;
 
 public class Pill extends Physical{
@@ -58,7 +59,7 @@ public class Pill extends Physical{
 
                 .append("COLORIDX: ").append(colorIdx).append("\n")
                 .append("===ATTRIBUTES===").append("\n");
-        attributes.forEach((key, value) -> builder.append(key).append(": ").append(value).append("\n"));
+        attributes.forEach((key, value) -> {if(!key.startsWith("t_p")){builder.append(key).append(": ").append(value).append("\n");}});
         return builder.toString();
     }
 
@@ -278,7 +279,8 @@ public class Pill extends Physical{
         //Particle Life Colors
         if(attributes.containsKey("type")){
             g.setColor(viewport.getColor((int)attributes.get("type").doubleValue()));
-            thickness *= 0.8 ;
+            thickness *= 1.0 ;
+            thickness = max(thickness, 2);
             g2.fillOval(x1 - (int)thickness/2, y1 - (int)thickness/2, (int)thickness, (int)thickness);
             if (length > 0){
                 g.setColor(viewport.getColor((int)attributes.get("type").doubleValue() + 1));

@@ -1,4 +1,4 @@
-sm_reset
+//sm_reset
 sm_attribute a_point_amt 10
 sm_attribute a_1_x 0
 sm_attribute a_1_y 0
@@ -37,10 +37,10 @@ sm_attribute a_7_g -210
 
 ent_create force_attractor
 //ent_create phys_pill origin 0,5 vel 5,0 movable 1
-exec randomPills
+//exec randomPills
 
-sm_attribute bouncyness 0.5
-vp_reset
-vp_colors random 3
-vp_origin 30,22
-vp_zoom 80
+//sm_attribute bouncyness 0.5
+//vp_reset
+//vp_colors random 3
+//vp_origin 30,22
+//vp_zoom 80

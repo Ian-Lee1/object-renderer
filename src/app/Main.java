@@ -4,7 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Main {
+
     public static void main(String[] args) {
+
         ViewBuilder viewBuilder = new ViewBuilder();
         JFrame application = viewBuilder
                 .addPhysWorld()
@@ -13,7 +15,6 @@ public class Main {
         application.pack();
         application.setLocationRelativeTo(null);
         application.setVisible(true);
-
     }
 
 }

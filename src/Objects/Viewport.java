@@ -25,7 +25,7 @@ public class Viewport{
         if (colors.size() == 0){
             return Color.RED;
         }
-        return colors.get(i % colors.size());
+        return colors.get((i + colors.size()) % colors.size());
     }
 
     public Vec2 screenToWorld(int w, int h, double x, double y){

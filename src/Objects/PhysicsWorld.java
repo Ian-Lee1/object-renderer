@@ -151,19 +151,24 @@ public class PhysicsWorld implements World{
                 if (force instanceof Attractors){
                     ((Attractors) force).specialProcess(attributes, stepScale);
                 }
+                if (force instanceof ParticleLife){
+                    ((ParticleLife) force).processAll(objects, attributes, stepScale);
+                }
             }
             for (Physical obj : objects) {
 
                 //FORCE
-                obj.force = new Vec2(0, 0);
                 for (Force force : forces) { //forces may change the objects' attributes, even if unmovable
                     force.applyForces(obj, objects, attributes, stepScale);
                 }
+            }
 
+            for (Physical obj : objects) {
                 if (obj.movable) {
                     //VELOCITY //F=MA, so divide mass.
                     obj.vel = (obj.vel.add(obj.force.mul(stepScale).mul(obj.inverseMass)));
                     obj.applyRotate(stepScale);
+                    obj.force = new Vec2(0, 0); //reset force
                     //MOVE
                     obj.origin = (obj.origin.add(obj.vel.mul(stepScale)));
                     tracerAttributeManager.updateTracerPoints(obj);
@@ -173,7 +178,6 @@ public class PhysicsWorld implements World{
                     obj.vel = new Vec2(0, 0);
                     obj.angVel = 0;
                 }
-
             }
             solver.resolve(objects, stepScale, attributes);
         }
@@ -244,8 +248,11 @@ public class PhysicsWorld implements World{
                     }
                     else if (command.toLowerCase().startsWith("random", 10)){
                         int c = Integer.parseInt(command.substring(17));
+                        double ic = 1.0/c;
                         for (int i = 0 ; i < c; i++){
-                            viewport.colors.add(Color.getHSBColor((float)Math.random(), (float)(Math.random()*0.3 + 0.7), (float)(Math.random()*0.3 + 0.7)));
+
+                            viewport.colors.add(Color.getHSBColor((float)ic, (float)(Math.random()*0.3 + 0.7), (float)(Math.random()*0.3 + 0.7)));
+                            ic += ic;
                         }
                         System.out.println("Added "+c+ " colors.");
                     }
