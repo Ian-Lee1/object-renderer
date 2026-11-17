@@ -2,15 +2,15 @@ import random
 
 from pygame.math import clamp
 
-with open("../../scripts/randomPills", "w", encoding="utf-8") as file:
+with open("../../scripts/1000Pillsq3", "w", encoding="utf-8") as file:
     #HEADER
-    for i in range(500):
+    for i in range(1000):
         file.write("ent_create phys_pill ")
         #origin
-        bound = 600
+        bound = 1000
         vel = 1
-        x = random.random() * (bound - 2) + 1
-        y = random.random() * (bound - 2) + 1
+        x = random.random() * bound
+        y = random.random() * bound - 1000
         file.write("origin ") #from 1->4
         file.write(str(x) + "," + str(y) + " ")
         #origin
