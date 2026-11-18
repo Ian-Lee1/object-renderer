@@ -41,7 +41,7 @@ public class InfoPanel extends JPanel {
         else if (cmd.startsWith("kill")){
             wp.world.command("ent_remove i " + wp.world.getIndex(selectedObj));
 
-        objCmdField.setText("");
+        //objCmdField.setText(""); not clearing for ease of repeating commands
         String recreate = selectedObj.toString();
 
         System.out.println("Recreate: ent_create " + recreate

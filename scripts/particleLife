@@ -17,17 +17,18 @@ vp_zoom 200
 
 ent_create force_particlelife
 ent_create force_drag
-sm_attribute drag 0.5
+sm_attribute drag 1
 sm_attribute bouncyness 1
 
 sm_attribute pl_typeAmt 12
-sm_attribute pl_distAmt 8
+sm_attribute pl_distAmt 12
 sm_attribute pl_maxDist 150
-sm_attribute pl_attMax 2000
-sm_attribute pl_attMin 700
+sm_attribute pl_attMax 1500
+sm_attribute pl_attMin 600
 sm_attribute pl_command 1
-sm_attribute pl_opacity 0
-sm_step 1
+sm_attribute pl_opacity 60
+sm_step 500
 //sm_step 0
 
 //exec particleLife
+//sc 2000 2000 C:/Users/User/Desktop/coding/particle_zoo/test/

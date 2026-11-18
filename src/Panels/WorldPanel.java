@@ -5,12 +5,18 @@ import Objects.Viewport;
 import Objects.World;
 import Vector.Vec2;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 import static Constants.Constants.FPS;
+import static java.lang.Math.floor;
+import static java.lang.Math.random;
 
 public class WorldPanel extends JPanel implements KeyListener, MouseInputListener, MouseWheelListener {
     int mouselastX = -1;
@@ -78,8 +84,35 @@ public class WorldPanel extends JPanel implements KeyListener, MouseInputListene
             cmdPanel.setFocusable(cmdMode);
 
             this.repaint();
+        } else if (e.getKeyChar() == 'p'){
+            System.out.println("Saving screenshot...");
+            String filepath = "C:/Users/User/Desktop/coding/particle_zoo/";
+            String name = (int)floor(random() * 10000000) + ".png";
+            int x = this.getWidth();
+            int y = this.getHeight();
+            if (cmdPanel.cmdField.getText().startsWith("sc ")) {
+                try {
+                    String[] sections = cmdPanel.cmdField.getText().split(" ");
+                    if (sections.length > 2) {
+                        x = Integer.parseInt(sections[1]);
+                        y = Integer.parseInt(sections[2]);
+                    }
+                    if (sections.length > 3) {
+                        filepath = sections[3];
+                    }
+                } catch (Exception ex) {
+                    System.out.println("Bad formating. Screenshot failed. " + ex.getMessage());
+                }
+            }
+                try{
+                saveComponentImage(filepath, name, x, y);
+                } catch (Exception ex) {
+                    System.out.println("Screenshot failed. " + ex.getMessage());
+                }
+                }
+
         }
-    }
+
 
     @Override
     public void keyReleased(KeyEvent e) {
@@ -168,10 +201,43 @@ public class WorldPanel extends JPanel implements KeyListener, MouseInputListene
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         if(e.getWheelRotation()>0){
-            world.getViewport().zoom *= 1.1;
+            world.getViewport().zoom *= 1.3;
         } else {
-            world.getViewport().zoom *= 1/1.1;
+            world.getViewport().zoom *= 1/1.3;
         }
         this.repaint();
     }
+
+    public void saveComponentImage(String filePath, String name, int x, int y) throws IOException {
+        File file = new File(filePath + name);
+        File parentDir = new File(filePath);
+        if (parentDir != null && !parentDir.exists()) {
+            parentDir.mkdirs();
+        }
+        BufferedImage image = new BufferedImage(
+                x,
+                y,
+                BufferedImage.TYPE_INT_ARGB
+        );
+
+        // Paint the component onto the image's graphics context
+        Graphics g = image.createGraphics();
+        g.setClip(0,0, x, y);
+        g.setColor(Color.BLACK);
+        g.fillRect(0,0,x,y);
+        boolean antiAliasing = world.getViewport().antialiasing;
+        world.getViewport().antialiasing = true;
+
+        world.draw(g);
+        world.update();
+
+        g.dispose();
+        world.getViewport().antialiasing = antiAliasing;
+
+        // Save as PNG
+        ImageIO.write(image, "png", file );
+    }
+
+
+
 }
