@@ -2,14 +2,14 @@ import random
 
 from pygame.math import clamp
 
-with open("../../scripts/1000Pillsq3", "w", encoding="utf-8") as file:
+with open("../../scripts/4000pills", "w", encoding="utf-8") as file:
     #HEADER
-    for i in range(1000):
+    for i in range(4000):
         file.write("ent_create phys_pill ")
         #origin
-        bound = 1000
+        bound = 2000
         vel = 1
-        x = random.random() * bound
+        x = random.random() * bound - 1000
         y = random.random() * bound - 1000
         file.write("origin ") #from 1->4
         file.write(str(x) + "," + str(y) + " ")
@@ -34,7 +34,7 @@ with open("../../scripts/1000Pillsq3", "w", encoding="utf-8") as file:
         file.write("1 ")#str(clamp(random.random()-0.1, 0, 1)) + " ")
         #mass
         file.write("mass ") #from 0.3->2
-        #file.write(str(random.random()*17+3) + " ")
+        #file.write(str(random.random()*2+0.5) + " ")
         file.write("1 ")
         #colorIndx
         file.write("colorIdx ") #from 100

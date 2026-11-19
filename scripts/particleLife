@@ -2,10 +2,7 @@ sm_reset
 vp_colors clear
 vp_reset
 vp_colors random 30
-exec 1000Pillsq0
-exec 1000Pillsq1
-exec 1000Pillsq2
-exec 1000Pillsq3
+exec 4000pills
 sm_step 50
 
 //ent_create phys_pill size 0.1 movable 1 mass 1 origin 0,0
@@ -20,14 +17,14 @@ ent_create force_drag
 sm_attribute drag 1
 sm_attribute bouncyness 1
 
-sm_attribute pl_typeAmt 12
+sm_attribute pl_typeAmt 14
 sm_attribute pl_distAmt 12
 sm_attribute pl_maxDist 150
-sm_attribute pl_attMax 1500
-sm_attribute pl_attMin 600
+sm_attribute pl_attMax 4000
+sm_attribute pl_attMin 2000
 sm_attribute pl_command 1
-sm_attribute pl_opacity 60
-sm_step 500
+sm_attribute pl_opacity 100
+sm_step 50
 //sm_step 0
 
 //exec particleLife

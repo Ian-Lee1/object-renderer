@@ -166,7 +166,9 @@ public class PhysicsWorld implements World{
             for (Physical obj : objects) {
                 if (obj.movable) {
                     //VELOCITY //F=MA, so divide mass.
-                    obj.vel = (obj.vel.add(obj.force.mul(stepScale).mul(obj.inverseMass)));
+                    if(Double.isFinite(obj.force.getX()) && Double.isFinite(obj.force.getY())) {
+                        obj.vel = (obj.vel.add(obj.force.mul(stepScale).mul(obj.inverseMass)));
+                    }
                     obj.applyRotate(stepScale);
                     obj.force = new Vec2(0, 0); //reset force
                     //MOVE

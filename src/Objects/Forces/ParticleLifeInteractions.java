@@ -25,12 +25,19 @@ public class ParticleLifeInteractions {
                         NH  0.4  0.3+1  0.1   0.2-1        //if they are the same, more likely to attract each other.
                         NL  0.4 0.4+1   0.2-1 0.0        //if they are the same, more likely to start attracting.
 
-                         */
-    public double[][] transitionProbs = {
+{
             {0.1,0.2,0.5,0.2},
             {0.1,0.0,0.6,0.1},
             {0.5,0.2,0.1,0.2},
             {0.8,0.1,0.1,0.0},
+    };
+
+                         */
+    public double[][] transitionProbs = {
+            {0.25,0.25,0.25,0.25},
+            {0.25,0.25,0.25,0.25},
+            {0.25,0.25,0.25,0.25},
+            {0.25,0.25,0.25,0.25},
     };
     public double[][] transitionOnSame = {
             {0.6, 0.0, 0.2, 0.2},
@@ -111,7 +118,7 @@ public class ParticleLifeInteractions {
         type1 = type1 % types;
         type2 = type2 % types;
         if (dist < interactions[type1][type2][0][0]){
-            return remap (0, interactions[type1][type2][0][0], -2000, interactions[type1][type2][0][1], dist);
+            return remap (0, interactions[type1][type2][0][0], -magnitudeMax, interactions[type1][type2][0][1], dist);
         }
 
         for (int i = 1 ; i < points - 1; i++){

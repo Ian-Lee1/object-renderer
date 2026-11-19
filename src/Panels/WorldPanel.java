@@ -201,9 +201,9 @@ public class WorldPanel extends JPanel implements KeyListener, MouseInputListene
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         if(e.getWheelRotation()>0){
-            world.getViewport().zoom *= 1.3;
+            world.getViewport().zoom *= 1.1;
         } else {
-            world.getViewport().zoom *= 1/1.3;
+            world.getViewport().zoom *= 1/1.1;
         }
         this.repaint();
     }
