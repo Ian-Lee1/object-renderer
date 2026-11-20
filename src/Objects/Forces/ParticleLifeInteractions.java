@@ -1,6 +1,12 @@
 package Objects.Forces;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import static java.lang.Math.*;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -46,6 +52,8 @@ public class ParticleLifeInteractions {
             {0.7, 0.3, 0.0, 0.0},
     };
 
+    public ParticleLifeInteractions(){}
+
     public ParticleLifeInteractions(int types, int points, double maxDist, double max, double min){
         this.types = types;
         this.points = points;
@@ -53,6 +61,19 @@ public class ParticleLifeInteractions {
         magnitudeMax = max;
         magnitudeMin = min;
         randomize();
+    }
+    public ParticleLifeInteractions(String filepath) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        File file = new File(filepath);
+        ParticleLifeInteractions temp = mapper.readValue(file, ParticleLifeInteractions.class);
+        this.maxDist = temp.maxDist;
+        this.types = temp.types;
+        this.magnitudeMax = temp.magnitudeMax;
+        this.magnitudeMin = temp.magnitudeMin;
+        this.points = temp.points;
+        this.interactions = temp.interactions;
+        this.transitionProbs = temp.transitionProbs;
+        this.transitionOnSame = temp.transitionOnSame;
     }
 
     public void randomize() {
@@ -151,5 +172,32 @@ public class ParticleLifeInteractions {
         return Objects.hash(types, points, maxDist, magnitudeMax, magnitudeMin, Arrays.deepHashCode(interactions));
     }
 
+
+    public void toJson(String folderpath, int ruleNum) throws Exception{
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+        File folder = new File(folderpath);
+        File file = new File(folderpath + "/r_" + ruleNum + ".json");
+        if (folder != null && !folder.exists()) {
+            folder.mkdirs();
+        }
+        mapper.writeValue(file, this);
+    }
+
+
+    public void fromJson(String filepath) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        File file = new File(filepath);
+        ParticleLifeInteractions temp = mapper.readValue(file, ParticleLifeInteractions.class);
+        this.maxDist = temp.maxDist;
+        this.types = temp.types;
+        this.magnitudeMax = temp.magnitudeMax;
+        this.magnitudeMin = temp.magnitudeMin;
+        this.points = temp.points;
+        this.interactions = temp.interactions;
+        this.transitionProbs = temp.transitionProbs;
+        this.transitionOnSame = temp.transitionOnSame;
+    }
     
 }

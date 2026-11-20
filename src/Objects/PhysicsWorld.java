@@ -211,222 +211,217 @@ public class PhysicsWorld implements World{
 
 
     public void command(String command) {
-        System.out.println("> " + command);
-        try {
-            if (command.toLowerCase().startsWith("vp_")) {
-                if (command.toLowerCase().startsWith("zoom", 3)) {
-                    if (command.length() > 8) {
-                        viewport.zoom = Double.parseDouble(command.substring(8));
-                    }else {
-                        System.out.println("Viewport Zoom: " + viewport.zoom);
-                    }
-                }
-                else if (command.toLowerCase().startsWith("origin", 3)) {
-                    if (command.length() > 10) {
-                    viewport.origin = Vec2.parseVec2(command.substring(10));
-                    }else {
-                        System.out.println("Viewport Origin: " + viewport.origin);
-                    }
-                }
-                else if (command.toLowerCase().startsWith("reset", 3)) {
-                    System.out.println("Viewport reset.");
-                    resetViewport();
-                }
-                else if (command.toLowerCase().startsWith("colors", 3)) {
-                    if (command.toLowerCase().startsWith("clear", 10)){
-                        System.out.println("Cleared viewport colors");
-                        viewport.colors.clear();
-                        viewport.colors.add(Color.RED);
-                    }
-                    else if (command.toLowerCase().startsWith("add", 10)){
-                        String section = command.substring(14);
-                        String[] parts = section.trim().split(" ");
-                        if (parts.length < 3){
-                            System.out.println("RGB components not detected properly. Format colors as r g b.");
-                        }else {
-                            viewport.colors.add(new Color(Integer.parseInt(parts[0]),Integer.parseInt(parts[1]), Integer.parseInt(parts[2])));
-                            System.out.println("Add new color.");
+        if (!command.startsWith("/")) {
+            System.out.println("> " + command);
+            try {
+                if (command.toLowerCase().startsWith("vp_")) {
+                    if (command.toLowerCase().startsWith("zoom", 3)) {
+                        if (command.length() > 8) {
+                            viewport.zoom = Double.parseDouble(command.substring(8));
+                        } else {
+                            System.out.println("Viewport Zoom: " + viewport.zoom);
                         }
-                    }
-                    else if (command.toLowerCase().startsWith("random", 10)){
-                        int c = Integer.parseInt(command.substring(17));
-                        double ic = 1.0/c;
-                        for (int i = 0 ; i < c; i++){
+                    } else if (command.toLowerCase().startsWith("origin", 3)) {
+                        if (command.length() > 10) {
+                            viewport.origin = Vec2.parseVec2(command.substring(10));
+                        } else {
+                            System.out.println("Viewport Origin: " + viewport.origin);
+                        }
+                    } else if (command.toLowerCase().startsWith("reset", 3)) {
+                        System.out.println("Viewport reset.");
+                        resetViewport();
+                    } else if (command.toLowerCase().startsWith("colors", 3)) {
+                        if (command.toLowerCase().startsWith("clear", 10)) {
+                            System.out.println("Cleared viewport colors");
+                            viewport.colors.clear();
+                            viewport.colors.add(Color.RED);
+                        } else if (command.toLowerCase().startsWith("add", 10)) {
+                            String section = command.substring(14);
+                            String[] parts = section.trim().split(" ");
+                            if (parts.length < 3) {
+                                System.out.println("RGB components not detected properly. Format colors as r g b.");
+                            } else {
+                                viewport.colors.add(new Color(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2])));
+                                System.out.println("Add new color.");
+                            }
+                        } else if (command.toLowerCase().startsWith("random", 10)) {
+                            int c = Integer.parseInt(command.substring(17));
+                            double ic = 1.0 / c;
+                            for (int i = 0; i < c; i++) {
 
-                            viewport.colors.add(Color.getHSBColor((float)ic, (float)(Math.random()*0.3 + 0.7), (float)(Math.random()*0.3 + 0.7)));
-                            ic += ic;
+                                viewport.colors.add(Color.getHSBColor((float) ic, (float) (Math.random() * 0.3 + 0.7), (float) (Math.random() * 0.3 + 0.7)));
+                                ic += ic;
+                            }
+                            System.out.println("Added " + c + " colors.");
                         }
-                        System.out.println("Added "+c+ " colors.");
                     }
-                }
-            }
-            else if (command.toLowerCase().startsWith("sm_reset")) {
-                resetAttributes();
-                resetObjects();
-                System.out.println("Cleared all objects.");
-            }
-            else if (command.toLowerCase().startsWith("sm_step")) {
-                if (command.length() > 8){
-                    System.out.println("Steping " + command.substring(8) + " times...");
-                    for(int i = 0 ; i < Integer.parseInt(command.substring(8)); i++){
-                        update();
-                    }
-                }else {
-                    update();
-                    System.out.println("Stepped once");
-                }
-            }
-            else if (command.toLowerCase().startsWith("sm_attribute")) {
-                if (command.toLowerCase().startsWith("clear", 13)){
+                } else if (command.toLowerCase().startsWith("sm_reset")) {
                     resetAttributes();
-                    System.out.println("Attributes cleared.");
-                }
-                else if (command.length() > 14){
-                    String section = command.substring(13);
-                    int space = section.indexOf(' ');
-                    if (space <= 0 || space == section.length() - 1){
-                        System.out.println("Invalid formatting.");
+                    resetObjects();
+                    System.out.println("Cleared all objects.");
+                } else if (command.toLowerCase().startsWith("sm_step")) {
+                    if (command.length() > 8) {
+                        System.out.println("Steping " + command.substring(8) + " times...");
+                        for (int i = 0; i < Integer.parseInt(command.substring(8)); i++) {
+                            update();
+                        }
+                    } else {
+                        update();
+                        System.out.println("Stepped once");
                     }
+                } else if (command.toLowerCase().startsWith("sm_attribute")) {
+                    if (command.toLowerCase().startsWith("clear", 13)) {
+                        resetAttributes();
+                        System.out.println("Attributes cleared.");
+                    } else if (command.length() > 14) {
+                        String section = command.substring(13);
+                        int space = section.indexOf(' ');
+                        if (space <= 0 || space == section.length() - 1) {
+                            System.out.println("Invalid formatting.");
+                        }
 
-                    attributes.put(section.substring(0, space), Double.parseDouble(section.substring(space)));
-                    System.out.println("Added/Changed " + section.substring(0, space) + ": " + section.substring(space));
-                }
-            }
-            else if (command.toLowerCase().startsWith("sm_bounds_regen")) {
+                        attributes.put(section.substring(0, space), Double.parseDouble(section.substring(space)));
+                        System.out.println("Added/Changed " + section.substring(0, space) + ": " + section.substring(space));
+                    }
+                } else if (command.toLowerCase().startsWith("sm_bounds_regen")) {
                     resetObjects();
                     addBounds();
-                System.out.println("Bounds regenerated.");
-            }
-            else if (command.toLowerCase().startsWith("sm_bounds")) {
-                if(command.length() > 12) {
-                    double number = Double.parseDouble(command.substring(12));
-                    System.out.println("Changed bound " + command.charAt(10)+ ": " + number);
-                    switch (command.charAt(10)) {
-                        case 'w':
-                            attributes.put("width", number);
-                            break;
-                        case 'h':
-                            attributes.put("height", number);
-                            break;
+                    System.out.println("Bounds regenerated.");
+                } else if (command.toLowerCase().startsWith("sm_bounds")) {
+                    if (command.length() > 12) {
+                        double number = Double.parseDouble(command.substring(12));
+                        System.out.println("Changed bound " + command.charAt(10) + ": " + number);
+                        switch (command.charAt(10)) {
+                            case 'w':
+                                attributes.put("width", number);
+                                break;
+                            case 'h':
+                                attributes.put("height", number);
+                                break;
 
-                        default:
-                            throw new IllegalArgumentException();
+                            default:
+                                throw new IllegalArgumentException();
+                        }
+                    } else {
+                        System.out.println("Width: " + attributes.get("width") + " | Height: " + attributes.get("height"));
                     }
-                }
-                else{ System.out.println("Width: " + attributes.get("width") + " | Height: " + attributes.get("height"));}
-            }
-            else if (command.toLowerCase().startsWith("ent_create ")) {
-                System.out.println("Creating object...");
-                try {
-                    if (command.startsWith("force_", 11)){
-                        forces.add(Force.parseForce(command.substring(17)));
-                    } else if (command.startsWith("phys_", 11)){
-                        objects.add(Physical.parsePhysical(command.substring(16)));
+                } else if (command.toLowerCase().startsWith("ent_create ")) {
+                    System.out.println("Creating object...");
+                    try {
+                        if (command.startsWith("force_", 11)) {
+                            forces.add(Force.parseForce(command.substring(17)));
+                        } else if (command.startsWith("phys_", 11)) {
+                            objects.add(Physical.parsePhysical(command.substring(16)));
+                        }
+                        System.out.println("Object created successfully.");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Creation failure: " + e.getMessage());
                     }
-                    System.out.println("Object created successfully.");
-                } catch (IllegalArgumentException e){
-                    System.out.println("Creation failure: " + e.getMessage());
-                }
-            }
-            else if (command.toLowerCase().startsWith("ent_remove ")) {
-                System.out.println("Removing object...");
-                int index = -1;
-                try {
-                if (command.charAt(11) == 'i'){ //by index
-                    index = Integer.parseInt(command.substring(13));
-                } else { //by hash
-                    double hash = Double.parseDouble(command.substring(11));
+                } else if (command.toLowerCase().startsWith("ent_remove ")) {
+                    System.out.println("Removing object...");
+                    int index = -1;
+                    try {
+                        if (command.charAt(11) == 'i') { //by index
+                            index = Integer.parseInt(command.substring(13));
+                        } else { //by hash
+                            double hash = Double.parseDouble(command.substring(11));
+                            for (Physical obj : objects) {
+                                if (obj.attributes.get("hash") == hash) {
+                                    index = objects.indexOf(obj);
+                                    break;
+                                }
+                            }
+                        }
+                        objects.remove(index);
+                        System.out.println("Object remove successfully.");
+
+                    } catch (Exception e) {
+                        System.out.println("Removal failure: " + e.getMessage());
+                    }
+                } else if (command.toLowerCase().startsWith("ent_track")) {
+                    if (command.length() > 10) {
+                        double hash = Double.parseDouble(command.substring(10));
+                        for (Physical obj : objects) {
+                            if (obj.attributes.get("hash") == hash) {
+                                tracking = true;
+                                tracked = obj;
+                                break;
+                            }
+                        }
+                    } else {
+                        tracking = false;
+                        tracked = null;
+                    }
+                } else if (command.toLowerCase().startsWith("ent_clone ")) {
+                    int section = command.lastIndexOf(' ');
+                    double hash;
+                    String loca = " ";
+                    if (section > 10) {
+                        hash = Double.parseDouble(command.substring(10, section));
+                        loca = command.substring(section);
+                    } else {
+                        hash = Double.parseDouble(command.substring(10));
+                        loca += viewport.screenToWorld(screenX, screenY, attributes.get("INTL_mouseX"), screenY - attributes.get("INTL_mouseY")).toString().replace("(", "").replace(")", "").replace(" ", "");
+                    }
+                    Physical newPhys = null;
                     for (Physical obj : objects) {
-                        if (obj.attributes.get("hash") == hash) {
-                            index = objects.indexOf(obj);
+                        if (obj.attributes.get("hash") != null) {
+                            if (obj.attributes.get("hash") == hash) {
+                                newPhys = obj.clone();
+                                break;
+                            }
+                        }
+                    }
+                    newPhys.changeFromString(" origin" + loca);
+                    objects.add(newPhys);
+
+
+                } else if (command.toLowerCase().startsWith("exec ")) {
+                    String filePath = command.substring(5);
+                    try (Stream<String> lines = Files.lines(Paths.get("scripts/" + filePath))) {
+                        lines.forEach(this::command);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else if (command.toLowerCase().startsWith("help")) {
+                    System.out.println(
+                            """
+                                    VIEWPORT - vp_
+                                        vp_reset | resets zoom and origin based on width and height
+                                        vp_colors [clear/add/random] [null/[R] [G] [B]/[amt] | clears colors, add specific color, or generate amt random colors.
+                                        vp_origin [double],[double] | sets the viewpoint's origin.
+                                        vp_zoom [double]| set the viewport's zoom level. zoom describes units visible on the y-axis.
+                                    SIMULATION - sm_
+                                        sm_step [Optional int] | take 1 or more steps in the simulation
+                                        sm_reset | fully resets the simulation
+                                        sm_bounds [w/h/regen] [double/double/null] | changes the width and height of the simulation, or regenerats the bounds, clearing all objects.
+                                        sm_attributes [clear/[attribute]] [null/[double]] | clears all attributes, or add/change the specified attribute.
+                                    ENTITIES - ent_
+                                        ent_create [entity] [keyvalues] | create an entity with the given keyvalues
+                                        ent_remove [int/str] | rmeoves an entity based on its index or targetname.
+                                        ent_find [hash double] | selects the entity with the matching hash and moves the camera to it.
+                                        ent_track [hash double/null] | tracks the entity with the matching hash, or disables the track.
+                                        ent_clone [hash double] [double,double] | clone the object matching the hash to the new location.
+                                    EXECUTE FILE - exec
+                                        exec [filePath] | execute each line in a file in script/ as a command in the command field. Beware of infinite loops if exec calls are nested.
+                                    """);
+                } else if (command.startsWith("pl_")) {
+                    for (int i = 0; i < forces.size(); i++) {
+                        if (forces.get(i) instanceof ParticleLife) {
+                            if (command.equals("pl_randomize")) {
+                                ((ParticleLife) forces.get(i)).randomize(attributes, objects);
+                            } else {
+                                ((ParticleLife) forces.get(i)).command(command.substring(3));
+                            }
                             break;
                         }
                     }
+                } else {
+                    System.out.println("Unknown command. Input \"help\" for command information.");
                 }
-                objects.remove(index);
-                System.out.println("Object remove successfully.");
-
-                } catch (Exception e){
-                    System.out.println("Removal failure: " + e.getMessage());
-                }
+            } catch (IllegalArgumentException _) {
+                System.out.println("Bad command. Input \"help\" for command information. \n");
             }
-            else if (command.toLowerCase().startsWith("ent_track")){
-                if (command.length() > 10){
-                    double hash = Double.parseDouble(command.substring(10));
-                    for (Physical obj : objects){
-                        if (obj.attributes.get("hash") == hash) {
-                            tracking = true;
-                            tracked = obj;
-                            break;
-                        }
-                    }
-                }else{
-                    tracking = false;
-                    tracked = null;
-                }
-            }
-            else if (command.toLowerCase().startsWith("ent_clone ")){
-                int section = command.lastIndexOf(' ');
-                double hash;
-                String loca = " ";
-                if (section > 10) {
-                    hash = Double.parseDouble(command.substring(10, section));
-                    loca = command.substring(section);
-                }
-                else {
-                    hash = Double.parseDouble(command.substring(10));
-                    loca += viewport.screenToWorld(screenX, screenY, attributes.get("INTL_mouseX"), screenY-attributes.get("INTL_mouseY")).toString().replace("(", "").replace(")", "").replace(" ", "");
-                }
-               Physical newPhys = null;
-                for (Physical obj : objects) {
-                    if (obj.attributes.get("hash") != null) {
-                        if (obj.attributes.get("hash") == hash) {
-                            newPhys = obj.clone();
-                            break;
-                        }
-                    }
-                }
-                newPhys.changeFromString(" origin"+ loca);
-                objects.add(newPhys);
-
-
-            }
-            else if (command.toLowerCase().startsWith("exec ")){
-                String filePath = command.substring(5);
-                try (Stream<String> lines = Files.lines(Paths.get("scripts/" + filePath))) {
-                    lines.forEach(this::command);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            else if (command.toLowerCase().startsWith("help")) {
-                System.out.println(
-                        """
-                                VIEWPORT - vp_
-                                    vp_reset | resets zoom and origin based on width and height
-                                    vp_colors [clear/add/random] [null/[R] [G] [B]/[amt] | clears colors, add specific color, or generate amt random colors.
-                                    vp_origin [double],[double] | sets the viewpoint's origin.
-                                    vp_zoom [double]| set the viewport's zoom level. zoom describes units visible on the y-axis.
-                                SIMULATION - sm_
-                                    sm_step [Optional int] | take 1 or more steps in the simulation
-                                    sm_reset | fully resets the simulation
-                                    sm_bounds [w/h/regen] [double/double/null] | changes the width and height of the simulation, or regenerats the bounds, clearing all objects.
-                                    sm_attributes [clear/[attribute]] [null/[double]] | clears all attributes, or add/change the specified attribute.
-                                ENTITIES - ent_
-                                    ent_create [entity] [keyvalues] | create an entity with the given keyvalues
-                                    ent_remove [int/str] | rmeoves an entity based on its index or targetname.
-                                    ent_find [hash double] | selects the entity with the matching hash and moves the camera to it.
-                                    ent_track [hash double/null] | tracks the entity with the matching hash, or disables the track.
-                                    ent_clone [hash double] [double,double] | clone the object matching the hash to the new location.
-                                EXECUTE FILE - exec
-                                    exec [filePath] | execute each line in a file in script/ as a command in the command field. Beware of infinite loops if exec calls are nested.
-                                """);
-            } else {
-                System.out.println("Unknown command. Input \"help\" for command information.");
-            }
-        } catch(IllegalArgumentException _){
-            System.out.println("Bad command. Input \"help\" for command information. \n");
         }
-
     }
 }
