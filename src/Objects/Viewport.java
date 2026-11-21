@@ -5,6 +5,8 @@ import Vector.Vec2;
 import java.awt.*;
 import java.util.ArrayList;
 
+import static java.lang.Math.abs;
+
 public class Viewport{
     public Vec2 origin;
     public Vec2 vel;
@@ -13,12 +15,22 @@ public class Viewport{
 
     public ArrayList<Color> colors;
 
+
     public Viewport(){
         origin = new Vec2(0, 0);
         vel = new Vec2(0, 0);
         zoom = 0;
         colors = new ArrayList<>();
         antialiasing = false;
+    }
+
+    public boolean contains(Vec2 pos, Graphics g){
+        double x = pos.getX();
+        double y = pos.getY();
+
+        double xZoom = g.getClipBounds().width / (g.getClipBounds().height / zoom);
+
+       return abs(origin.getY() - y) < zoom/2 && abs(origin.getX() - x) < xZoom/2;
     }
 
     public Color getColor(int i){

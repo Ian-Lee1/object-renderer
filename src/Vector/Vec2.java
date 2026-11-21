@@ -1,5 +1,8 @@
 package Vector;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 import static java.lang.Math.pow;
 
 public class Vec2 {
@@ -92,6 +95,20 @@ public class Vec2 {
             return "(" + x + ", " + y + ")";
         }
 
+    @Override
+    public boolean equals(Object o){
+        if (o instanceof Vec2){
+            return ((Vec2) o).getX() == x && ((Vec2) o).getY() == y;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        // 4. Always override hashCode() when overriding equals()
+        return Objects.hash(x, y);
+    }
+
     public static Vec2 parseVec2(String s) {
         String[] parts = s.trim().split(",");
 
@@ -106,4 +123,6 @@ public class Vec2 {
 
         return new Vec2(x, y);
     }
+
+
 }

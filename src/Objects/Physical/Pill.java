@@ -4,10 +4,11 @@ import Objects.Viewport;
 import Vector.Vec2;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 
-import static java.lang.Math.max;
-import static java.lang.Math.pow;
+import static java.lang.Math.*;
 
 public class Pill extends Physical{
     public double size;
@@ -146,7 +147,7 @@ public class Pill extends Physical{
         if (!attributes.containsKey("hash")) {
             attributes.put("hash", getDouble(cmdParameters.toLowerCase(), " hash "));
             if (attributes.get("hash").isNaN()) {
-                attributes.put("hash", (double) (int) (Math.random() * 1000000) / 1000);
+                attributes.put("hash", copySign(hashCode() % 10000 + (Math.random()*10000)/10000,1));
             }
         }
 
@@ -300,7 +301,12 @@ public class Pill extends Physical{
         pill.angVel = angVel;
         pill.movable = movable;
         pill.attributes.putAll(attributes);
-        pill.attributes.put("hash", (double) (int) (Math.random() * 1000000) / 1000);
+        pill.attributes.put("hash", copySign(hashCode() % 10000 + (Math.random()*10000)/10000,1));
         return pill;
+    }
+
+    @Override
+    public int hashCode(){
+        return Objects.hash(origin, size, length, colorIdx, inverseMass);
     }
 }

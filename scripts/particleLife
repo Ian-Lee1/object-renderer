@@ -2,6 +2,7 @@ sm_reset
 vp_colors clear
 vp_reset
 vp_colors random 30
+//exec 1000Pillsq0
 exec 4000pills
 sm_step 50
 exec 4000pills
@@ -18,13 +19,13 @@ ent_create force_drag
 sm_attribute drag 1
 sm_attribute bouncyness 1
 
-sm_attribute pl_typeAmt 6
-sm_attribute pl_distAmt 6
+sm_attribute pl_typeAmt 8
+sm_attribute pl_distAmt 8
 sm_attribute pl_maxDist 450
-sm_attribute pl_attMax 4000
+sm_attribute pl_attMax 3000
 sm_attribute pl_attMin 2000
 pl_randomize
-pl_opacity 0
+pl_opacity 255
 sm_step 50
 //sm_step 0
 

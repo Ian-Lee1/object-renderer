@@ -39,7 +39,6 @@ public class ParticleLifeCalculationThread extends Thread{
     public void run() {
         for (int i = start; i < end ; i++){
             Physical obj = objects.get(i);
-
             if (obj.attributes.containsKey("type") && obj.attributes.containsKey("ruleset")) {
                 Vec2 start = obj.origin;
                 Vec2 force, force2;
@@ -62,30 +61,29 @@ public class ParticleLifeCalculationThread extends Thread{
                                 //DRAWING FORCE LINES:
                                 //FOR EACH OBJECT PAIR, IF abs FORCE IS ABOVE THREASHOLD (near attMax?) draw line between them. oclor based on sign.
                                 //fade based on strength and distence.
-                                if (gr != null && vp != null && opacity > 0) {
+                                /*if (gr != null && vp != null && opacity > 0) {
+                                    Stroke stroke = new BasicStroke(
+                                            (float) ((((Pill) obj).size / 3) * vp.worldToScreenScale(gr)),
+                                            BasicStroke.CAP_ROUND,
+                                            BasicStroke.JOIN_ROUND
+                                    );
                                     Graphics2D g2 = (Graphics2D) gr;
-
+                                    g2.setStroke(stroke);
                                     g2.setRenderingHint(
                                             RenderingHints.KEY_ANTIALIASING,
-                                            RenderingHints.VALUE_ANTIALIAS_ON);
+                                            RenderingHints.VALUE_ANTIALIAS_OFF);
 
 
                                     Vec2 coords = vp.worldToScreen(gr, obj.origin);
                                     Vec2 coords2 = vp.worldToScreen(gr, obj2.origin);
 
-                                    Color attColor = computeAttractionData(interaction, obj, obj2, maxDist, attributes);
-                                    if (attColor.getAlpha() > opacity * 0.1) {
-                                        Stroke stroke = g2.getStroke();
-                                        g2.setStroke(new BasicStroke(
-                                                (float) (((((Pill) obj).size / 3) * vp.worldToScreenScale(gr))),
-                                                BasicStroke.CAP_ROUND,
-                                                BasicStroke.JOIN_ROUND
-                                        ));
+                                    //Color attColor = computeAttractionData(interactions, obj, obj2, maxDist, attributes);
+                                    Color attColor = computeAttractionData(interaction.magnitudeMax, interaction.getAttraction((int)obj.attributes.get("type").doubleValue(), (int)obj2.attributes.get("type").doubleValue(), max(0.01,obj2.origin.sub(obj.origin).lengthSq())), obj.origin.sub(obj2.origin).length(), maxDist);
+                                    if (attColor.getGreen() > 0) {
                                         gr.setColor(attColor);
                                         g2.drawLine((int) coords.getX(), (int) coords.getY(), (int) coords2.getX(), (int) coords2.getY());
-                                        g2.setStroke(stroke);
                                     }
-                                }
+                                }*/
                             }
                         }
                     }
@@ -97,22 +95,26 @@ public class ParticleLifeCalculationThread extends Thread{
         }
     }
 
-    private Color computeAttractionData(ParticleLifeInteractions interaction, Physical obj, Physical obj2, double maxDist,  HashMap<String, Double> attributes){
+
+    //TODO improve / fix
+    /*private Color computeAttractionData(ParticleLifeInteractions interaction, Physical obj, Physical obj2, double maxDist,  HashMap<String, Double> attributes){
         double att1 = interaction.getAttraction((int) obj.attributes.get("type").doubleValue(), (int) obj2.attributes.get("type").doubleValue(), obj.origin.sub(obj2.origin).lengthSq());
-        double att2 = interaction.getAttraction((int) obj2.attributes.get("type").doubleValue(), (int) obj.attributes.get("type").doubleValue(), obj.origin.sub(obj2.origin).lengthSq());
+        //double att2 = interactions.get((int) obj2.attributes.get("ruleset").doubleValue()).getAttraction((int) obj2.attributes.get("type").doubleValue(), (int) obj.attributes.get("type").doubleValue(), obj.origin.sub(obj2.origin).lengthSq());
         double len = obj.origin.sub(obj2.origin).lengthSq();
         double closeness= 1 - remap(pow(maxDist, 2) * 0.05, pow(maxDist, 2), 0, 1, len);
+        double farness= remap(0, pow(maxDist, 2)* 0.05, 0, 1, len);
 
-        int r = (int) remap(-interaction.magnitudeMax * 2, 0, 0, 255, att1 + att2);
-        int b = 255 - (int) remap(0, interaction.magnitudeMax * 2, 0, 255, att1 + att2);
+        double limitedMax = interactions.get((int) obj.attributes.get("ruleset").doubleValue()).magnitudeMax;
+        int r = (int) remap(- limitedMax, 0, 0, 255, att1);
+        int b = 255 - (int) remap(0,  limitedMax, 0, 255, att1);
 
-        int a = (int) remap(pow(0.3, 1.7), 1, 0, opacity, pow(closeness, 1.7));
-        int g = (int)remap(0, pow(opacity * 0.7,2), 0, 255, pow(a,2));
-
-        a = (g > 150) ? (int)opacity : a;
+        //int a = (int) remap(pow(0.3, 1.7), 1, 0, opacity, pow(closeness, 1.7));
+        int g = (int)remap(limitedMax * 0.7, limitedMax, 0, 255, abs(att1));
+        int a = 100;//(int)(closeness * farness);
+        //a = (g > 150) ? (int)opacity : 0;
 
         return new Color(r,g,b,a);
-    }
+    }*/
     private Vec2 computeForce(ParticleLifeInteractions interaction, Vec2 p1, Vec2 p2, int t1, int t2){
         //a positive attraction attracts.
         return p2.sub(p1).toUnit().mul(interaction.getAttraction(t1, t2, max(0.01,p2.sub(p1).lengthSq())));
@@ -136,18 +138,6 @@ public class ParticleLifeCalculationThread extends Thread{
         return inRange;
     }
 
-    private void removeObj(HashMap<Integer, HashMap<Integer, ArrayList<Physical>>> hash, Physical obj, double cellSize){
-        //remove the given object from the hash.
-        int x = (int)floor(obj.origin.getX() / cellSize);
-        int y = (int)floor(obj.origin.getY() / cellSize);
-        if (hash.containsKey(x)) {
-            if (hash.get(x).containsKey(y)) {
-                hash.get(x).get(y).remove(obj);
-            }
-        }
-    }
 
-    private double remap (double inMin , double inMax , double outMin , double outMax , double val){
-        return min(outMax, max(outMin, ((val - inMin) * (outMax - outMin) / (inMax - inMin) + outMin)));
-    }
+
 }
